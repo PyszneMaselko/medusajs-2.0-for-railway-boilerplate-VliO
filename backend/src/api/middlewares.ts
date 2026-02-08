@@ -7,7 +7,7 @@ import { PostAdminCreateAcademy } from "./admin/academy/validators"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
 
 // @ts-ignore
-export const GetAcademiesSchema = createFindParams()
+export const GetAcademiesSchema: z.ZodSchema = createFindParams()
 
 export default defineMiddlewares({
   routes: [
