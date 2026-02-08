@@ -3,20 +3,50 @@ import {
   validateAndTransformQuery,
   validateAndTransformBody,
 } from "@medusajs/framework/http"
+
 import { PostAdminCreateAcademy } from "./admin/academy/validators"
+import { PostAdminCreateFamily } from "./admin/family/validators"
+
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
 
 // @ts-ignore
-export const GetAcademiesSchema: z.ZodSchema = createFindParams()
+export const paginationSchema: z.ZodSchema = createFindParams()
 
 export default defineMiddlewares({
   routes: [
+    // FAMILY
+        {
+      matcher: "/admin/family",
+      method: "GET",
+      middlewares: [
+        validateAndTransformQuery(
+          paginationSchema,
+          {
+            defaults: [
+              "id",
+              "name",
+              "customers.*",
+            ],
+            isList: true,
+          }
+        ),
+      ],
+    },
+    {
+      matcher: "/admin/family",
+      method: "POST",
+      middlewares: [
+        // @ts-ignore
+        validateAndTransformBody(PostAdminCreateFamily),
+      ],
+    },
+    // ACADEMY
     {
       matcher: "/admin/academy",
       method: "GET",
       middlewares: [
         validateAndTransformQuery(
-          GetAcademiesSchema,
+          paginationSchema,
           {
             defaults: [
               "id",

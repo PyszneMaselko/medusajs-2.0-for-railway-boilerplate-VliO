@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "esnext",
-        "jsx": "react-jsx",
-    "lib": ["DOM", "ES2021"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "lib": ["dom", "es2021"],
     "types": ["react", "react-dom"]
   },
   "include": ["."],
