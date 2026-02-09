@@ -5,12 +5,8 @@ import {
 } from "@medusajs/framework/http"
 import { PostAdminCreateAcademy, PostAdminUpdateAcademy } from "./admin/academy/validators"
 import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-
-
-import { PostAdminCreateAcademy } from "./admin/academy/validators";
 import { PostAdminCreateFamily, DeleteAdminDeleteFamily } from "./admin/family/validators";
 
-import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
 // @ts-ignore
 export const paginationSchema: z.ZodSchema = createFindParams();
