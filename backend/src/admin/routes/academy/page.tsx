@@ -1,11 +1,21 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk";
 // @ts-ignore
-import { AcademicCap, Plus } from "@medusajs/icons";
+import { AcademicCap, Plus, XMark, PencilSquare } from "@medusajs/icons";
 // @ts-ignore
-import { Container, Text, Heading, Button, DataTablePaginationState, Divider } from "@medusajs/ui";
-import { useQuery } from "@tanstack/react-query";
+import {
+  Container,
+  Text,
+  Heading,
+  Button,
+  DataTablePaginationState,
+  Divider,
+  Toast,
+  toast,
+} from "@medusajs/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sdk } from "../../lib/sdk.js";
 import { useMemo, useState } from "react";
+import { CreateAcademyModal } from "./CreateAcademyModal";
 
 type Academy = {
   id: string;
@@ -42,32 +52,75 @@ const AcademiesPage = () => {
     queryKey: [["academy", limit, offset]],
   });
 
+  const queryClient = useQueryClient();
+  const { mutateAsync: deleteAcademy } = useMutation({
+    mutationFn: (id: string) =>
+      sdk.client.fetch(`/admin/academy/${id}`, {
+        method: "DELETE",
+      }),
+    onSuccess: () => {
+      toast.success("Success", {
+        description: "Location was deleted.",
+      });
+      queryClient.invalidateQueries({ queryKey: [["academy"]] });
+    },
+    onError: (err) => {
+      toast.error("Error", {
+        description: "Failed to delete location.",
+      });
+      console.error(err);
+    },
+  });
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this academy?")) {
+      await deleteAcademy(id);
+    }
+  };
+
   if (isLoading || !data) {
     return <Container>Loading...</Container>;
-  } else return (
-  <Container className="flex flex-col gap-y-4">
-    {/* Header */}
-    <div className="flex items-center justify-between px-4 pt-4">
-      <Heading level="h1">Academies</Heading>
+  } else
+    return (
+      <Container className="flex flex-col gap-y-4">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4">
+          <Heading level="h1">Locations</Heading>
 
-      <Button variant="primary">
-        <Plus />
-        Create
-      </Button>
-    </div>
+          <CreateAcademyModal />
+        </div>
 
-    <Divider />
+        <Divider />
 
-    {/* Content */}
-    <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-3">
-      {data.academies.map((academy) => (
-        <Container key={academy.id} className="flex flex-col gap-y-3">
-          <div className="flex items-start justify-between">
-            <Text size="large" weight="plus">
-              {academy.name}
-            </Text>
+        {/* Content */}
+        <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-1">
+          {data.academies.map((academy) => (
+            <Container key={academy.id} className="flex flex-col">
+              <div className="flex items-start justify-between">
+                <Text size="large" weight="plus">
+                  Name: {academy.name}
+                </Text>
+                <Text size="large">Address: {academy.address_line_1}</Text>
+                {/* <Text size="large">Address 2: {academy.address_line_2}</Text> */}
 
-            {/* <DropdownMenu>
+                <CreateAcademyModal
+                  initialData={academy}
+                  trigger={
+                    <Button variant="secondary" size="small">
+                      <PencilSquare /> Edit
+                    </Button>
+                  }
+                />
+
+                <Button
+                  variant="primary"
+                  onClick={() => handleDelete(academy.id)}
+                >
+                  <XMark />
+                  Delete
+                </Button>
+
+                {/* <DropdownMenu>
               <DropdownMenu.Trigger asChild>
                 <Button variant="transparent" size="small">
                   <EllipsisHorizontal />
@@ -86,12 +139,12 @@ const AcademiesPage = () => {
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu> */}
-          </div>
-        </Container>
-      ))}
-    </div>
-  </Container>
-  );
+              </div>
+            </Container>
+          ))}
+        </div>
+      </Container>
+    );
 };
 
 export const config = defineRouteConfig({

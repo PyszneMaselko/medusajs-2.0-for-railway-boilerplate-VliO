@@ -2,7 +2,10 @@ import {
   defineMiddlewares,
   validateAndTransformQuery,
   validateAndTransformBody,
-} from "@medusajs/framework/http";
+} from "@medusajs/framework/http"
+import { PostAdminCreateAcademy, PostAdminUpdateAcademy } from "./admin/academy/validators"
+import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+
 
 import { PostAdminCreateAcademy } from "./admin/academy/validators";
 import { PostAdminCreateFamily, DeleteAdminDeleteFamily } from "./admin/family/validators";
@@ -60,5 +63,13 @@ export default defineMiddlewares({
         validateAndTransformBody(PostAdminCreateAcademy),
       ],
     },
+    {
+      matcher: "/admin/academy/:id",
+      method: "POST",
+      middlewares: [ 
+        // @ts-ignore
+        validateAndTransformBody(PostAdminUpdateAcademy),
+      ],
+    }
   ],
 });
