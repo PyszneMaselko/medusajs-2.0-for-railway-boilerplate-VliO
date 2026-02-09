@@ -51,6 +51,9 @@ const medusaConfig = {
   },
   modules: [
     {
+      resolve: "./src/modules/family",
+    },
+    {
       resolve: "./src/modules/academy",
     },
     {
