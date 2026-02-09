@@ -1,35 +1,28 @@
-import { 
+import {
   defineMiddlewares,
   validateAndTransformQuery,
   validateAndTransformBody,
-} from "@medusajs/framework/http"
+} from "@medusajs/framework/http";
 
-import { PostAdminCreateAcademy } from "./admin/academy/validators"
-import { PostAdminCreateFamily } from "./admin/family/validators"
+import { PostAdminCreateAcademy } from "./admin/academy/validators";
+import { PostAdminCreateFamily, DeleteAdminDeleteFamily } from "./admin/family/validators";
 
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"
+import { createFindParams } from "@medusajs/medusa/api/utils/validators";
 
 // @ts-ignore
-export const paginationSchema: z.ZodSchema = createFindParams()
+export const paginationSchema: z.ZodSchema = createFindParams();
 
 export default defineMiddlewares({
   routes: [
     // FAMILY
-        {
+    {
       matcher: "/admin/family",
       method: "GET",
       middlewares: [
-        validateAndTransformQuery(
-          paginationSchema,
-          {
-            defaults: [
-              "id",
-              "name",
-              "customers.*",
-            ],
-            isList: true,
-          }
-        ),
+        validateAndTransformQuery(paginationSchema, {
+          defaults: ["id", "name", "customers.*"],
+          isList: true,
+        }),
       ],
     },
     {
@@ -40,23 +33,23 @@ export default defineMiddlewares({
         validateAndTransformBody(PostAdminCreateFamily),
       ],
     },
+    {
+      matcher: "/admin/family",
+      method: "DELETE",
+      middlewares: [
+        // @ts-ignore
+        validateAndTransformBody(DeleteAdminDeleteFamily),
+      ],
+    },
     // ACADEMY
     {
       matcher: "/admin/academy",
       method: "GET",
       middlewares: [
-        validateAndTransformQuery(
-          paginationSchema,
-          {
-            defaults: [
-              "id",
-              "name",
-              "address_line_1",
-              "address_line_2",
-            ],
-            isList: true,
-          }
-        ),
+        validateAndTransformQuery(paginationSchema, {
+          defaults: ["id", "name", "address_line_1", "address_line_2"],
+          isList: true,
+        }),
       ],
     },
     {
@@ -68,4 +61,4 @@ export default defineMiddlewares({
       ],
     },
   ],
-})
+});

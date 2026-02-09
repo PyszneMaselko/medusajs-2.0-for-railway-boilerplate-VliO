@@ -7,5 +7,8 @@ export default defineLink(
     linkable: CustomerModule.linkable.customer,
     isList: true,
   },
-  FamilyModule.linkable.family
+  {
+    linkable: FamilyModule.linkable.family,
+    deleteCascade: true,
+  }
 )

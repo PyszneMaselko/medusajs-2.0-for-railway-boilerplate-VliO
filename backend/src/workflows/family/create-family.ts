@@ -6,6 +6,8 @@ import {
 } from "@medusajs/framework/workflows-sdk";
 import { FAMILY_MODULE } from "../../modules/family";
 import FamilyModuleService from "../../modules/family/service";
+import { Modules } from "@medusajs/framework/utils";
+import { LinkDefinition } from "@medusajs/framework/types";
 
 export type CreateFamilyStepInput = {
   name: string;
@@ -30,15 +32,57 @@ export const createFamilyStep = createStep(
   },
 );
 
+export type CreateFamilyCustomerLinkStepInput = {
+  family_id: string;
+  customer_ids?: string[];
+};
+
+export const createFamilyCustomerLinkStep = createStep(
+  "create-family-customer-link-step",
+  async (input: CreateFamilyCustomerLinkStepInput, { container }) => {
+    const link = container.resolve("link");
+    const logger = container.resolve("logger");
+
+    const links: LinkDefinition[] = [];
+
+    if (input.customer_ids && input.customer_ids.length > 0) {
+      for (const customer_id of input.customer_ids) {
+        links.push({
+          [Modules.CUSTOMER]: {
+            customer_id: customer_id,
+          },
+          [FAMILY_MODULE]: {
+            family_id: input.family_id,
+          },
+        });
+      }
+      await link.create(links);
+      logger.info("Linked family to customer");
+    }
+
+    return new StepResponse(links, links);
+  },
+  // Compensation Func
+  async (links, { container }) => {
+    if (!links?.length) {
+      return;
+    }
+    const link = container.resolve("link");
+    await link.dismiss(links);
+  },
+);
+
 type CreateFamilyWorkflowInput = {
-  name: string
-}
+  name: string;
+  customer_ids?: string[];
+};
 
 export const createFamilyWorkflow = createWorkflow(
   "create-family",
   (input: CreateFamilyWorkflowInput) => {
-    const family = createFamilyStep(input)
+    const family = createFamilyStep(input);
+    const links = createFamilyCustomerLinkStep({ family_id: family.id, customer_ids: input.customer_ids });
 
-    return new WorkflowResponse(family)
-  }
-)
+    return new WorkflowResponse(family);
+  },
+);

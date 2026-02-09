@@ -10,11 +10,13 @@ import {
   DataTablePaginationState,
   useDataTable,
   Button,
+  Text
 } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { sdk } from "../../lib/sdk.js";
 import { useMemo, useState } from "react";
 import { CreateFamilyDrawer } from "./components/CreateFamilyDrawer.js";
+import { DeleteFamilyButton } from "./components/DeleteFamilyButton.js";
 import { AdminCustomerListResponse } from "@medusajs/framework/types";
 
 type Family = {
@@ -29,17 +31,6 @@ type FamiliesResponse = {
   offset: number;
 };
 
-const columnHelper = createDataTableColumnHelper<Family>();
-
-const columns = [
-  columnHelper.accessor("id", {
-    header: "ID",
-  }),
-  columnHelper.accessor("name", {
-    header: "Name",
-  }),
-];
-
 const FamiliesPage = () => {
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
@@ -50,15 +41,53 @@ const FamiliesPage = () => {
     return pagination.pageIndex * limit;
   }, [pagination]);
 
-  const { data, isLoading } = useQuery<FamiliesResponse>({
+  const columnHelper = createDataTableColumnHelper<Family>();
+
+  const columns = [
+    columnHelper.accessor("name", {
+      header: "Name",
+    }),
+    columnHelper.accessor("customers", {
+      header: "Customers",
+      cell: ({ row }) => {
+        const customers = row.original.customers || [];
+
+        if (!customers.length) {
+          return <span>-</span>;
+        }
+
+        return (
+          <div className="flex flex-row gap-y-1 gap-x-2">
+            {customers.map((customer) => (
+              <Text key={customer.id} size="xsmall" level="h3">
+                {customer.first_name} {customer.last_name}
+              </Text>
+            ))}
+          </div>
+        );
+      },
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="flex w-full justify-end">
+          <DeleteFamilyButton
+            familyName={row.original.name}
+            familyId={row.original.id}
+            onDeleted={() => familiesQuery.refetch()}
+          />
+        </div>
+      ),
+    }),
+  ];
+
+  const familiesQuery = useQuery<FamiliesResponse>({
+    queryKey: ["families", limit, offset],
     queryFn: () =>
-      sdk.client.fetch(`/admin/family`, {
-        query: {
-          limit,
-          offset,
-        },
+      sdk.client.fetch("/admin/family", {
+        query: { limit, offset },
       }),
-    queryKey: [["families", limit, offset]],
   });
 
   const { data: customersData, isLoading: isCustomersLoading } =
@@ -72,10 +101,10 @@ const FamiliesPage = () => {
 
   const table = useDataTable({
     columns,
-    data: data?.families || [],
+    data: familiesQuery.data?.families || [],
     getRowId: (row) => row.id,
-    rowCount: data?.count || 0,
-    isLoading,
+    rowCount: familiesQuery.data?.count || 0,
+    isCustomersLoading,
     pagination: {
       state: pagination,
       onPaginationChange: setPagination,
@@ -88,7 +117,10 @@ const FamiliesPage = () => {
         <DataTable instance={table}>
           <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <Heading>Families</Heading>
-            <CreateFamilyDrawer customers={customersData?.customers ?? []} />
+            <CreateFamilyDrawer
+              customers={customersData?.customers ?? []}
+              onCreated={() => familiesQuery.refetch()}
+            />
           </DataTable.Toolbar>
           <DataTable.Table />
           <DataTable.Pagination />
