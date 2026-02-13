@@ -2,11 +2,16 @@ import {
   defineMiddlewares,
   validateAndTransformQuery,
   validateAndTransformBody,
-} from "@medusajs/framework/http"
-import { PostAdminCreateAcademy, PostAdminUpdateAcademy } from "./admin/academy/validators"
-import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-import { PostAdminCreateFamily, DeleteAdminDeleteFamily } from "./admin/family/validators";
-
+} from "@medusajs/framework/http";
+import {
+  PostAdminCreateAcademy,
+  PostAdminUpdateAcademy,
+} from "./admin/academy/validators";
+import { createFindParams } from "@medusajs/medusa/api/utils/validators";
+import {
+  PostAdminCreateFamily,
+  DeleteAdminDeleteFamily,
+} from "./admin/family/validators";
 
 // @ts-ignore
 export const paginationSchema: z.ZodSchema = createFindParams();
@@ -14,6 +19,10 @@ export const paginationSchema: z.ZodSchema = createFindParams();
 export default defineMiddlewares({
   routes: [
     // FAMILY
+    {
+      matcher: "/admin/family/:id",
+      method: "GET",
+    },
     {
       matcher: "/admin/family",
       method: "GET",
@@ -62,10 +71,10 @@ export default defineMiddlewares({
     {
       matcher: "/admin/academy/:id",
       method: "POST",
-      middlewares: [ 
+      middlewares: [
         // @ts-ignore
         validateAndTransformBody(PostAdminUpdateAcademy),
       ],
-    }
+    },
   ],
 });

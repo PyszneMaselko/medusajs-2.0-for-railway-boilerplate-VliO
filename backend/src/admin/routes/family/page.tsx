@@ -10,14 +10,14 @@ import {
   DataTablePaginationState,
   useDataTable,
   Button,
-  Text
+  Text,
 } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { sdk } from "../../lib/sdk.js";
 import { useMemo, useState } from "react";
 import { CreateFamilyDrawer } from "./components/CreateFamilyDrawer.js";
 import { DeleteFamilyButton } from "./components/DeleteFamilyButton.js";
-import { AdminCustomerListResponse } from "@medusajs/framework/types";
+import { useNavigate } from "react-router-dom";
 
 type Family = {
   id: string;
@@ -32,6 +32,8 @@ type FamiliesResponse = {
 };
 
 const FamiliesPage = () => {
+  const navigate = useNavigate();
+
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
@@ -71,7 +73,13 @@ const FamiliesPage = () => {
       id: "actions",
       header: "",
       cell: ({ row }) => (
-        <div className="flex w-full justify-end">
+        <div
+          className="flex w-full justify-end"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
           <DeleteFamilyButton
             familyName={row.original.name}
             familyId={row.original.id}
@@ -90,14 +98,13 @@ const FamiliesPage = () => {
       }),
   });
 
-  const { data: customersData, isLoading: isCustomersLoading } =
-    useQuery<AdminCustomerListResponse>({
-      queryKey: ["customers"],
-      queryFn: () =>
-        sdk.admin.customer.list({
-          fields: "+groups",
-        }),
-    });
+  const { data: customersData, isLoading: isCustomersLoading } = useQuery({
+    queryKey: ["customers"],
+    queryFn: () =>
+      sdk.admin.customer.list({
+        fields: "+groups",
+      }),
+  });
 
   const table = useDataTable({
     columns,
@@ -108,6 +115,9 @@ const FamiliesPage = () => {
     pagination: {
       state: pagination,
       onPaginationChange: setPagination,
+    },
+    onRowClick(event, row) {
+      navigate(`/family/${row.id}`);
     },
   });
 

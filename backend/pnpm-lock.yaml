@@ -72,6 +72,9 @@ importers:
       '@medusajs/test-utils':
         specifier: 2.12.1
         version: 2.12.1(@medusajs/framework@2.12.1(@medusajs/cli@2.12.1(@types/node@20.19.25))(@types/node@20.19.25)(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25)))(@medusajs/medusa@2.12.1)
+      '@medusajs/types':
+        specifier: ^2.13.1
+        version: 2.13.1(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25))
       '@react-email/preview-server':
         specifier: ^5.1.0
         version: 5.1.0(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -111,6 +114,9 @@ importers:
       react-email:
         specifier: ^5.1.0
         version: 5.1.0
+      react-router-dom:
+        specifier: 6.20.1
+        version: 6.20.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.5.7(@swc/helpers@0.5.17))(@types/node@20.19.25)(typescript@5.9.3)
@@ -1667,6 +1673,18 @@ packages:
 
   '@medusajs/types@2.12.1':
     resolution: {integrity: sha512-IkdIQX+VqM2aiTm16DDge3Tzo61fkXRyv722Id9s5fPUcSIXJrMrKXlt3DJYIREMDKpMaOnt9SOg7BXSTVTMRA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      ioredis: ^5.4.1
+      vite: ^5.4.21
+    peerDependenciesMeta:
+      ioredis:
+        optional: true
+      vite:
+        optional: true
+
+  '@medusajs/types@2.13.1':
+    resolution: {integrity: sha512-Yw5AwVnwV+OdaOSTUhuwo14uKmqUp4qeuUzzo7HxxtrGCUcxGq2WkrjPY3z2fDTWKrSPIFqFaAJ0hMuUMt1ocw==}
     engines: {node: '>=20'}
     peerDependencies:
       ioredis: ^5.4.1
@@ -9922,6 +9940,13 @@ snapshots:
       - supports-color
 
   '@medusajs/types@2.12.1(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25))':
+    dependencies:
+      bignumber.js: 9.3.1
+    optionalDependencies:
+      ioredis: 5.8.2
+      vite: 5.4.21(@types/node@20.19.25)
+
+  '@medusajs/types@2.13.1(ioredis@5.8.2)(vite@5.4.21(@types/node@20.19.25))':
     dependencies:
       bignumber.js: 9.3.1
     optionalDependencies:
