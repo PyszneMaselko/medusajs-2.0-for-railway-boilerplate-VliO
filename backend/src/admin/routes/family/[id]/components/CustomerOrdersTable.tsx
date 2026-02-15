@@ -108,19 +108,6 @@ export const CustomerOrdersTable = ({ customers = [] }: Props) => {
     [],
   );
 
-  // const table = useDataTable({
-  //   columns,
-  //   data: ordersQuery.data?.orders ?? [],
-  //   rowCount: ordersQuery.data?.count ?? 0,
-  //   manualPagination: true,
-  //   pagination: {
-  //     state: pagination,
-  //     onPaginationChange: setPagination,
-  //   },
-  //   getRowId: (row) => row.id,
-  //   onRowClick: (_, row) =>
-  //     navigate(`/orders/${row.id}`),
-  // })
   const table = useDataTable({
     columns,
     data: ordersQuery.data?.orders ?? [],

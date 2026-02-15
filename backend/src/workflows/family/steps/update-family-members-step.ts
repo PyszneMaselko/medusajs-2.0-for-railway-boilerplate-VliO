@@ -56,7 +56,7 @@ export const updateFamilyMembersStep = createStep(
         });
       }
       await link.dismiss(linksToDelete);
-      logger.info("DELETED family to customer LINKS");
+      // logger.info("DELETED family to customer LINKS");
     }
 
     if (customersToAdd.length > 0) {
@@ -71,33 +71,7 @@ export const updateFamilyMembersStep = createStep(
         });
       }
       await link.create(linksToAdd);
-      logger.info("ADDED family to customer LINKS");
+      // logger.info("ADDED family to customer LINKS");
     }
-
-    // const family = await familyService.retrieve(family_id, {
-    //   relations: ["customers"],
-    // });
-
-    // if (!family) {
-    //   throw new MedusaError(
-    //     MedusaError.Types.NOT_FOUND,
-    //     "Family not found"
-    //   );
-    // }
-
-    // // (opcjonalnie) walidacja customer IDs
-    // if (customer_ids.length > 0) {
-    //   await customerService.list(
-    //     { id: customer_ids },
-    //     { take: customer_ids.length }
-    //   );
-    // }
-
-    // /**
-    //  * 🔁 Replace members
-    //  */
-    // await familyService.update(family_id, {
-    //   customers: customer_ids.map((id) => ({ id })),
-    // });
   },
 );
