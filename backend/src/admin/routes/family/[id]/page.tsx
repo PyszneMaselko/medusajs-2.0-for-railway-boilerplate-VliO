@@ -8,6 +8,8 @@ import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CustomerDropdown } from "./components/CustomerDropdown.js";
 import { CustomerOrdersTable } from "./components/CustomerOrdersTable.js";
+import { CustomerDraftOrdersTable } from "./components/CustomerDraftOrdersTable.js";
+import { EditFamilyMembersDrawer } from "./components/EditFamilyMembersDrawer.js"
 import {
   createDataTableColumnHelper,
   DataTable,
@@ -56,6 +58,14 @@ const FamilyPage = () => {
     queryFn: () => sdk.client.fetch(`/admin/family/${id}`),
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
+  });
+
+    const { data: customersData, isLoading: isCustomersLoading } = useQuery({
+    queryKey: ["customers"],
+    queryFn: () =>
+      sdk.admin.customer.list({
+        fields: "+groups",
+      }),
   });
 
   const columnHelper = createDataTableColumnHelper<Customer>();
@@ -108,7 +118,8 @@ const FamilyPage = () => {
               row.original.first_name + " " + row.original.first_name
             }
             customerId={row.original.id}
-            familyId={row.original.id}
+            familyId={id}
+            initialCustomerIds={familyQuery.data?.family.customers?.map((c) => c.id) ?? []}
             onDeleted={() => familyQuery.refetch()}
           />
         </div>
@@ -121,9 +132,6 @@ const FamilyPage = () => {
     data: familyQuery.data?.family.customers || [],
     getRowId: (row) => row.id,
     rowCount: familyQuery.data?.family.customers.length || 0,
-    // onRowClick(event, row) {
-    //   navigate(`/family/${row.id}`);
-    // },
   });
 
   return (
@@ -133,6 +141,12 @@ const FamilyPage = () => {
           <DataTable instance={table}>
             <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
               <Heading>{familyQuery.data?.family.name || "..."}</Heading>
+              <EditFamilyMembersDrawer
+                familyId={id}
+                customers={customersData?.customers ?? []}
+                initialCustomerIds={familyQuery.data?.family.customers?.map((c) => c.id) ?? []}
+                onUpdated={() => familyQuery.refetch()}
+              />
               {/* <CreateFamilyDrawer
                 customers={customersData?.customers ?? []}
                 onCreated={() => familiesQuery.refetch()}
@@ -152,7 +166,10 @@ const FamilyPage = () => {
         <Text>Passed ID: {id}</Text>
       </Container>
       {familyQuery.data?.family.customers && (
+        <>
+        <CustomerDraftOrdersTable customers={familyQuery.data.family.customers} />
         <CustomerOrdersTable customers={familyQuery.data.family.customers} />
+        </>
       )}
     </>
   );

@@ -95,13 +95,13 @@ export const CustomerOrdersTable = ({ customers = [] }: Props) => {
         header: "Total",
         cell: ({ row }) => (
           <Text size="small">
-            {(row.original.total / 100).toFixed(2)}{" "}
+            {(row.original.total).toFixed(2)}{" "}
             {row.original.currency_code.toUpperCase()}
           </Text>
         ),
       }),
       columnHelper.accessor("created_at", {
-        header: "Created",
+        header: "Created at",
         cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
       }),
     ],
@@ -139,7 +139,7 @@ export const CustomerOrdersTable = ({ customers = [] }: Props) => {
   return (
     <Container className="divide-y p-0">
       <div className="px-6 py-4">
-        <Heading level="h2">Orders</Heading>
+        <Heading level="h2">Orders History</Heading>
       </div>
 
       <DataTable instance={table}>

@@ -12,6 +12,7 @@ import {
   PostAdminCreateFamily,
   DeleteAdminDeleteFamily,
 } from "./admin/family/validators";
+import { PatchAdminUpdateFamily } from "./admin/family/[id]/validators";
 
 // @ts-ignore
 export const paginationSchema: z.ZodSchema = createFindParams();
@@ -19,6 +20,14 @@ export const paginationSchema: z.ZodSchema = createFindParams();
 export default defineMiddlewares({
   routes: [
     // FAMILY
+    {
+      matcher: "/admin/family/:id",
+      method: "PATCH",
+      middlewares: [
+        // @ts-ignore
+        validateAndTransformBody(PatchAdminUpdateFamily),
+      ],
+    },
     {
       matcher: "/admin/family/:id",
       method: "GET",

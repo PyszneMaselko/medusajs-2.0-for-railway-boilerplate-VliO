@@ -15,6 +15,7 @@ import {
 import { sdk } from "../../../lib/sdk.js";
 import { Customer } from "@medusajs/medusa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CustomerMultiSelect } from "../components/CustomerMultiSelect.js";
 
 type CreateFamilyDrawerProps = {
   customers: Customer[];
@@ -33,6 +34,7 @@ export function CreateFamilyDrawer({
   const [name, setName] = useState("");
   const [open, setOpen] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  // zostaje tylko
   const [selectedCustomers, setSelectedCustomers] = useState<Set<string>>(
     new Set(),
   );
@@ -118,61 +120,11 @@ export function CreateFamilyDrawer({
 
               <Divider className="pt-4" />
 
-              {selectedCustomers.size > 0 && (
-                <>
-                  <div className="text-sm my-4">
-                    <ul className="list-disc list-inside">
-                      {[...selectedCustomers].map((id) => {
-                        const c = customers.find((c) => c.id === id);
-                        return (
-                          <Badge
-                            key={id}
-                            onClick={() => toggleCustomer(c.id)}
-                            size="xsmall"
-                            color="blue"
-                            className="mr-1 cursor-pointer"
-                          >
-                            {c?.first_name} {c?.last_name} <XMarkMini />
-                          </Badge>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </>
-              )}
-
-              <Input
-                placeholder="Search customer..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="mb-4"
+              <CustomerMultiSelect
+                customers={customers}
+                value={selectedCustomers}
+                onChange={setSelectedCustomers}
               />
-
-              {filteredCustomers.length === 0 && (
-                <Text size="small" className="text-ui-fg-muted">
-                  No results
-                </Text>
-              )}
-
-              {filteredCustomers.map((customer) => {
-                const checked = selectedCustomers.has(customer.id);
-
-                return (
-                  <div key={customer.id} className="flex items-center gap-2">
-                    <Checkbox
-                      id={customer.id}
-                      checked={checked}
-                      onCheckedChange={() => toggleCustomer(customer.id)}
-                    />
-                    <Label htmlFor={customer.id} className="flex items-center">
-                      {customer.first_name} {customer.last_name}
-                      <span className="ml-2 text-muted-foreground">
-                        {customer.groups?.[0]?.name ?? "-"}
-                      </span>
-                    </Label>
-                  </div>
-                );
-              })}
             </Drawer.Body>
             <Drawer.Footer>
               <Drawer.Close asChild>
