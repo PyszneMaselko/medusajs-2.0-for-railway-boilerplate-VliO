@@ -3,6 +3,8 @@ import { MedusaError } from "@medusajs/framework/utils";
 import { FAMILY_MODULE } from "../../../modules/family";
 import { Modules } from "@medusajs/framework/utils";
 import { LinkDefinition } from "@medusajs/framework/types";
+import { MedusaContainer } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 type Input = {
   family_id: string;
@@ -15,8 +17,8 @@ export const updateFamilyMembersStep = createStep(
   async (input: Input, { container }) => {
     const { family_id, new_customer_ids, old_customer_ids } = input;
 
-    const logger = container.resolve("logger");
-    const link = container.resolve("link");
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+    const link = container.resolve(ContainerRegistrationKeys.LINK);
 
     logger.info(family_id);
     logger.info(`${new_customer_ids.length}`);

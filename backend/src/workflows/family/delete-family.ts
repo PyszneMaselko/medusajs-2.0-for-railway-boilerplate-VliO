@@ -14,6 +14,8 @@ import {
 } from "@medusajs/medusa/core-flows";
 import familyCustomerLink from "../../links/family/customer-family";
 import { removeRemoteLinkStep } from "@medusajs/medusa/core-flows";
+import { MedusaContainer } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export type DeleteFamilyStepInput = {
   ids: string[];
@@ -44,8 +46,8 @@ type Family = {
 const getFamilyCustomerIdsStep = createStep(
   "get-family-customer-ids",
   async (families: Family[], { container }) => {
-    const logger = container.resolve("logger");
-    const link = container.resolve("link");
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+    const link = container.resolve(ContainerRegistrationKeys.LINK);
 
     const customerIds = families.flatMap(
       (f) => f.customers?.map((c) => c.id) ?? [],

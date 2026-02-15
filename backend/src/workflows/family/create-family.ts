@@ -8,6 +8,8 @@ import { FAMILY_MODULE } from "../../modules/family";
 import FamilyModuleService from "../../modules/family/service";
 import { Modules } from "@medusajs/framework/utils";
 import { LinkDefinition } from "@medusajs/framework/types";
+import { MedusaContainer } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 export type CreateFamilyStepInput = {
   name: string;
@@ -40,8 +42,8 @@ export type CreateFamilyCustomerLinkStepInput = {
 export const createFamilyCustomerLinkStep = createStep(
   "create-family-customer-link-step",
   async (input: CreateFamilyCustomerLinkStepInput, { container }) => {
-    const link = container.resolve("link");
-    const logger = container.resolve("logger");
+    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 
     const links: LinkDefinition[] = [];
 
@@ -67,7 +69,7 @@ export const createFamilyCustomerLinkStep = createStep(
     if (!links?.length) {
       return;
     }
-    const link = container.resolve("link");
+    const link = container.resolve(ContainerRegistrationKeys.LINK);
     await link.dismiss(links);
   },
 );
