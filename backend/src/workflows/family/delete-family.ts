@@ -46,8 +46,8 @@ type Family = {
 const getFamilyCustomerIdsStep = createStep(
   "get-family-customer-ids",
   async (families: Family[], { container }) => {
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER) as any;
+    const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
 
     const customerIds = families.flatMap(
       (f) => f.customers?.map((c) => c.id) ?? [],

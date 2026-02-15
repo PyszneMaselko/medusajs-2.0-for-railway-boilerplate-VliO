@@ -17,8 +17,8 @@ export const updateFamilyMembersStep = createStep(
   async (input: Input, { container }) => {
     const { family_id, new_customer_ids, old_customer_ids } = input;
 
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER) as any;
+    const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
 
     logger.info(family_id);
     logger.info(`${new_customer_ids.length}`);

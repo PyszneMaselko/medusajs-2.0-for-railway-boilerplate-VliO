@@ -42,8 +42,8 @@ export type CreateFamilyCustomerLinkStepInput = {
 export const createFamilyCustomerLinkStep = createStep(
   "create-family-customer-link-step",
   async (input: CreateFamilyCustomerLinkStepInput, { container }) => {
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+    const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER) as any;
 
     const links: LinkDefinition[] = [];
 
@@ -69,7 +69,7 @@ export const createFamilyCustomerLinkStep = createStep(
     if (!links?.length) {
       return;
     }
-    const link = container.resolve(ContainerRegistrationKeys.LINK);
+    const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
     await link.dismiss(links);
   },
 );
