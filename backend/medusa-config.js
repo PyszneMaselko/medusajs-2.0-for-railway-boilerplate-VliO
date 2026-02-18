@@ -51,6 +51,9 @@ const medusaConfig = {
   },
   modules: [
     {
+      resolve: "./src/modules/order_schedule",
+    },
+    {
       resolve: "./src/modules/family",
     },
     {
