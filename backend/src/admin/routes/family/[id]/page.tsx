@@ -135,7 +135,7 @@ const FamilyPage = () => {
   });
 
   return (
-    <>
+    <div className="flex flex-col gap-5">
       <Container className="divide-y p-0">
         {
           <DataTable instance={table}>
@@ -171,7 +171,7 @@ const FamilyPage = () => {
         <CustomerOrdersTable customers={familyQuery.data.family.customers} />
         </>
       )}
-    </>
+    </div>
   );
 };
 

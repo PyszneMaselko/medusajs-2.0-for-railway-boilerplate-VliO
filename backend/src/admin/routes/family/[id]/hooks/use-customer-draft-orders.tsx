@@ -14,7 +14,8 @@ export const useCustomerDraftOrders = (
         limit,
         offset,
         fields:
-          "id,display_id,status,created_at,total,subtotal,currency_code,payment_status,fulfillment_status",
+          "id,display_id,status,created_at,total,subtotal,currency_code,payment_status,fulfillment_status,draft_order_schedule.*",
       }),
     enabled: customerIds && customerIds.length > 0,
+    refetchInterval: 60_000,
   })

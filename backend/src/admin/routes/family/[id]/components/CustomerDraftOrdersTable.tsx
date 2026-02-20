@@ -7,12 +7,15 @@ import {
   useDataTable,
   Text,
   StatusBadge,
+  Badge,
   Button,
-} from "@medusajs/ui"
-import { useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { HttpTypes } from "@medusajs/types"
-import { useCustomerDraftOrders } from "../hooks/use-customer-draft-orders.js"
+  DropdownMenu,
+} from "@medusajs/ui";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { HttpTypes } from "@medusajs/types";
+import { useCustomerDraftOrders } from "../hooks/use-customer-draft-orders.js";
+import { TriggerCalendar } from "./TriggerCalendar.js";
 
 type PaymentStatus =
   | "not_paid"
@@ -24,7 +27,7 @@ type PaymentStatus =
   | "partially_captured"
   | "partially_refunded"
   | "refunded"
-  | "requires_action"
+  | "requires_action";
 
 const paymentStatusConfig: Record<
   PaymentStatus,
@@ -34,43 +37,42 @@ const paymentStatusConfig: Record<
   captured: { label: "Captured", color: "green" },
   authorized: { label: "Authorized", color: "orange" },
   refunded: { label: "Refunded", color: "grey" },
-}
+};
 
 type Customer = {
-  id: string
-  first_name: string
-  last_name: string
-}
+  id: string;
+  first_name: string;
+  last_name: string;
+};
 
 type Props = {
-  customers: Customer[]
-}
+  customers: Customer[];
+};
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 10;
 
 export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
-  })
+  });
 
   const customerIds = useMemo(
     () => customers?.map((c) => c.id) ?? [],
-    [customers]
-  )
+    [customers],
+  );
 
-  const offset = pagination.pageIndex * PAGE_SIZE
+  const offset = pagination.pageIndex * PAGE_SIZE;
 
   const draftOrdersQuery = useCustomerDraftOrders(
     customerIds,
     PAGE_SIZE,
-    offset
-  )
+    offset,
+  );
 
-  const columnHelper =
-    createDataTableColumnHelper<HttpTypes.AdminDraftOrder>()
+  const columnHelper = createDataTableColumnHelper<HttpTypes.AdminDraftOrder>();
 
   const columns = useMemo(
     () => [
@@ -78,19 +80,46 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
         header: "Draft order",
         cell: ({ getValue }) => `#${getValue()}`,
       }),
-      columnHelper.accessor("payment_status", {
-        header: "Payment status",
-        cell: ({ getValue }) => {
-          const status = getValue() as PaymentStatus
-          const config = paymentStatusConfig[status]
-
-          if (!config) {
-            return <StatusBadge>{status}</StatusBadge>
-          }
-
+      columnHelper.display({
+        id: "trigger_date",
+        header: "Trigger at",
+        cell: ({ row }) => {
+          const triggerDate = row.original.draft_order_schedule?.trigger_date;
+          const clone = row.original.draft_order_schedule?.clone;
+          const draft_order_schedule_id = row.original.draft_order_schedule?.id;
+          // return triggerDate ? new Date(triggerDate).toLocaleDateString() : "—";
           return (
-            <StatusBadge color={config.color}>{config.label}</StatusBadge>
-          )
+            <DropdownMenu>
+              <DropdownMenu.Trigger asChild>
+                <div className="flex items-center gap-2">
+                  {triggerDate ? (
+                    <>
+                      <StatusBadge color="green">
+                        {new Date(triggerDate).toLocaleDateString()}
+                      </StatusBadge>
+
+                      {clone && (
+                        <Badge size="xsmall">
+                          Clone
+                        </Badge>
+                      )}
+                    </>
+                  ) : (
+                    <StatusBadge color="grey">Never</StatusBadge>
+                  )}
+                </div>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content>
+                <TriggerCalendar
+                  actualTriggerDate={triggerDate}
+                  draft_order_schedule_id={draft_order_schedule_id}
+                  order_id={row.original.id}
+                  clone={clone}
+                  onUpdated={() => draftOrdersQuery.refetch()}
+                />
+              </DropdownMenu.Content>
+            </DropdownMenu>
+          );
         },
       }),
       columnHelper.accessor("total", {
@@ -107,8 +136,8 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
         cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
       }),
     ],
-    []
-  )
+    [],
+  );
 
   const table = useDataTable({
     columns,
@@ -121,13 +150,18 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
     isLoading: draftOrdersQuery.isLoading,
     getRowId: (row) => row.id,
     onRowClick: (_, row) => navigate(`/draft-orders/${row.id}`),
-  })
+  });
 
   return (
     <Container className="divide-y p-0">
       <div className="px-6 py-4 flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
         <Heading level="h2">Draft orders</Heading>
-        <Button variant="secondary" onClick={() => navigate("/draft-orders/create")}>Create new</Button>
+        <Button
+          variant="secondary"
+          onClick={() => navigate("/draft-orders/create")}
+        >
+          Create new
+        </Button>
       </div>
 
       <DataTable instance={table}>
@@ -135,5 +169,5 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
         <DataTable.Pagination />
       </DataTable>
     </Container>
-  )
-}
+  );
+};

@@ -11,6 +11,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 
 export type CreateDraftOrderScheduleStepInput = {
   trigger_date: string;
+  clone : boolean;
 };
 
 export const createDraftOrderScheduleStep = createStep(
@@ -27,6 +28,7 @@ export const createDraftOrderScheduleStep = createStep(
     const draftOrderSchedule =
       await orderScheduleModuleService.createDraftOrderSchedules({
         trigger_date: date,
+        clone: input.clone
       });
 
     return new StepResponse(draftOrderSchedule, draftOrderSchedule.id);
@@ -73,6 +75,7 @@ export const linkDraftOrderScheduleOrderStep = createStep(
 type CreateDraftOrderScheduleWorkflowInput = {
   trigger_date: string;
   order_id: string;
+  clone: boolean;
 };
 
 export const createDraftOrderScheduleWorkflow = createWorkflow(
@@ -80,6 +83,7 @@ export const createDraftOrderScheduleWorkflow = createWorkflow(
   (input: CreateDraftOrderScheduleWorkflowInput) => {
     const draftOrderSchedule = createDraftOrderScheduleStep({
       trigger_date: input.trigger_date,
+      clone: input.clone,
     });
 
     const links = linkDraftOrderScheduleOrderStep({

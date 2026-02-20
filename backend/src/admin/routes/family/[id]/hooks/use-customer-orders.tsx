@@ -17,4 +17,5 @@ export const useCustomerOrders = (
           "id,display_id,status,created_at,total,currency_code,payment_status,fulfillment_status",
       }),
     enabled: customerIds && customerIds.length > 0,
+    refetchInterval: 60_000,
   })

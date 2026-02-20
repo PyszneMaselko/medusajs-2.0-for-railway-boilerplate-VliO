@@ -13,7 +13,11 @@ import {
   DeleteAdminDeleteFamily,
 } from "./admin/family/validators";
 import { PatchAdminUpdateFamily } from "./admin/family/[id]/validators";
-import { PostAdminCreateDraftOrderSchedule, DeleteAdminDeleteDraftOrderSchedule } from "./admin/order-schedule/validators";
+import {
+  PostAdminCreateDraftOrderSchedule,
+  DeleteAdminDeleteDraftOrderSchedule,
+} from "./admin/order-schedule/validators";
+import { PatchAdminPatchDraftOrderSchedule } from "./admin/order-schedule/[id]/validators";
 
 // @ts-ignore
 export const paginationSchema: z.ZodSchema = createFindParams();
@@ -21,6 +25,14 @@ export const paginationSchema: z.ZodSchema = createFindParams();
 export default defineMiddlewares({
   routes: [
     // ORDER SCHEDULE
+    {
+      matcher: "/admin/order-schedule/:id",
+      method: "PATCH",
+      middlewares: [
+        // @ts-ignore
+        validateAndTransformBody(PatchAdminPatchDraftOrderSchedule),
+      ],
+    },
     {
       matcher: "/admin/order-schedule",
       method: "DELETE",
