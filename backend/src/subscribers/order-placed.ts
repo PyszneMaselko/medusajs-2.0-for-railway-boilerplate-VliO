@@ -37,12 +37,12 @@ export default async function orderPlacedHandler({
       template: EmailTemplates.ORDER_PLACED,
       data: {
         emailOptions: {
-          replyTo: "info@example.com",
-          subject: "Your order has been placed",
+          replyTo: "system@platnosci.szkolaorlow.pl",
+          subject: "Szkoła Orłów - Zamówienie oczekuje na płatność",
         },
         order,
         shippingAddress,
-        preview: "Thank you for your order!",
+        preview: "Dziękujemy za korzystanie z naszych usług!",
       },
     });
   } catch (error) {
