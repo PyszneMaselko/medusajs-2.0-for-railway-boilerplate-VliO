@@ -25,8 +25,8 @@ import { createDraftOrderScheduleWorkflow } from "./create-draft-order-schedule"
 const createClonedOrderStep = createStep(
   "create-cloned-order",
   async ({ order }: any, { container }) => {
-    const orderModule = container.resolve(Modules.ORDER);
-    const logger = container.resolve("logger");
+    const orderModule = container.resolve(Modules.ORDER) as any;
+    const logger = container.resolve("logger") as any;
 
     logger.info("Before cloning");
 
@@ -94,7 +94,7 @@ const createClonedOrderStep = createStep(
     if (!orderId) {
       return;
     }
-    const orderModule = container.resolve(Modules.ORDER);
+    const orderModule = container.resolve(Modules.ORDER) as any;
     await orderModule.softDeleteOrders([orderId]);
   },
 );

@@ -25,7 +25,7 @@ export const updateDraftOrderScheduleStep = createStep(
   "update-draft-order-schedule-step",
   async (input: UpdateDraftOrderScheduleStepInput, { container }) => {
     const orderScheduleModuleService: OrderScheduleModuleService =
-      container.resolve(ORDER_SCHEDULE_MODULE);
+      container.resolve(ORDER_SCHEDULE_MODULE) as any;
 
     let updateData: UpdateDraftOrderScheduleType = {id: input.id};
 
@@ -48,7 +48,7 @@ export const updateDraftOrderScheduleStep = createStep(
   },
   async (id: string, { container }) => {
     const orderScheduleModuleService: OrderScheduleModuleService =
-      container.resolve(ORDER_SCHEDULE_MODULE);
+      container.resolve(ORDER_SCHEDULE_MODULE) as any;
 
     await orderScheduleModuleService.deleteDraftOrderSchedules(id);
   },

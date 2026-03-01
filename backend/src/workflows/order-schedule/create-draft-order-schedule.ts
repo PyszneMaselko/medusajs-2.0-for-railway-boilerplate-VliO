@@ -51,8 +51,8 @@ export const linkDraftOrderScheduleOrderStep = createStep(
   async (input: LinkDraftOrderScheduleStepInput, { container }) => {
     const orderScheduleModuleService: OrderScheduleModuleService =
       container.resolve(ORDER_SCHEDULE_MODULE);
-    const link = container.resolve(ContainerRegistrationKeys.LINK); // as any;
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER); // as any;
+    const link = container.resolve(ContainerRegistrationKeys.LINK) as any;
+    const logger = container.resolve(ContainerRegistrationKeys.LOGGER) as any;
 
     const links: LinkDefinition[] = [];
 

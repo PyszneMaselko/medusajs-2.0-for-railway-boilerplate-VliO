@@ -24,7 +24,7 @@ export const deleteDraftOrderScheduleStep = createStep(
   "delete-draft-order-schedule-step",
   async (input: DeleteDraftOrderScheduleStepInput, { container }) => {
     const orderScheduleModuleService: OrderScheduleModuleService =
-      container.resolve(ORDER_SCHEDULE_MODULE);
+      container.resolve(ORDER_SCHEDULE_MODULE) as any;
 
     const draftOrderSchedule =
       await orderScheduleModuleService.deleteDraftOrderSchedules(
@@ -44,10 +44,10 @@ export const deleteDraftOrderScheduleLinksStep = createStep(
   "delete-draft-order-schedule-links-step",
   async (input: DeleteDraftOrderScheduleLinksStepInput, { container }) => {
     const orderScheduleModuleService: OrderScheduleModuleService =
-      container.resolve(ORDER_SCHEDULE_MODULE);
+      container.resolve(ORDER_SCHEDULE_MODULE) as any;
     // const orderModuleService = container.resolve("order");
-    const logger = container.resolve("logger");
-    const link = container.resolve("link");
+    const logger = container.resolve("logger") as any;
+    const link = container.resolve("link") as any;
 
     logger.info(input.draft_order_schedule_id);
     logger.info(input.order_id);
