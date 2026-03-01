@@ -48,6 +48,7 @@ const medusaConfig = {
   admin: {
     backendUrl: BACKEND_URL,
     disable: SHOULD_DISABLE_ADMIN,
+    storefrontUrl: process.env.MEDUSA_STOREFRONT_URL || "http://localhost:8000",
   },
   modules: [
     {

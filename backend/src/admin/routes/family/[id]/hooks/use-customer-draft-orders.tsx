@@ -4,15 +4,17 @@ import { sdk } from "../../../../lib/sdk.js"
 export const useCustomerDraftOrders = (
   customerIds: string[],
   limit = 10,
-  offset = 0
+  offset = 0,
+  order = "-created_at"
 ) =>
   useQuery({
-    queryKey: ["draft-orders", customerIds, limit, offset],
+    queryKey: ["draft-orders", customerIds, limit, offset, order],
     queryFn: () =>
       sdk.admin.draftOrder.list({
         customer_id: customerIds,
         limit,
         offset,
+        order,
         fields:
           "id,display_id,status,created_at,total,subtotal,currency_code,payment_status,fulfillment_status,draft_order_schedule.*",
       }),

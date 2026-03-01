@@ -14,7 +14,10 @@ import { Modules } from "@medusajs/framework/utils";
 import { LinkDefinition } from "@medusajs/framework/types";
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows";
-import { convertDraftOrderWorkflow } from "@medusajs/medusa/core-flows";
+import {
+  convertDraftOrderWorkflow,
+  createOrderPaymentCollectionWorkflow,
+} from "@medusajs/medusa/core-flows";
 import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows";
 import { deleteDraftOrderScheduleWorkflow } from "./delete-draft-order-schedule";
 import { createDraftOrderScheduleWorkflow } from "./create-draft-order-schedule";
@@ -140,6 +143,26 @@ export const triggerDraftOrderWorkflow = createWorkflow(
     ).then(() => {
       // Order cloning
       const { clonedOrder } = createClonedOrderStep({ order: orders[0] });
+
+      const { data: clonedOrders } = useQueryGraphStep({
+        entity: "order",
+        fields: ["id", "total"],
+        filters: {
+          id: clonedOrder.id,
+        },
+      }).config({ name: "fetch-order-for-total" });
+
+      const amount = transform({ clonedOrders }, (data) => {
+        const total = data.clonedOrders[0]?.total;
+        return typeof total === "string" ? parseInt(total, 10) : Number(total);
+      });
+
+      const result = createOrderPaymentCollectionWorkflow.runAsStep({
+        input: {
+          order_id: clonedOrder.id,
+          amount: amount,
+        },
+      });
 
       // Calculating new Triggers date
       const nextTriggerDate = transform({ schedules }, ({ schedules }) => {

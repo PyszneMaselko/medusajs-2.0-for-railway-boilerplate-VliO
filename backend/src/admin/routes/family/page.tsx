@@ -34,6 +34,8 @@ type FamiliesResponse = {
 const FamiliesPage = () => {
   const navigate = useNavigate();
 
+  const [search, setSearch] = useState<string>("");
+
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
@@ -111,6 +113,10 @@ const FamiliesPage = () => {
     data: familiesQuery.data?.families || [],
     getRowId: (row) => row.id,
     rowCount: familiesQuery.data?.count || 0,
+    search: {
+      state: search,
+      onSearchChange: setSearch,
+    },
     isCustomersLoading,
     pagination: {
       state: pagination,
@@ -127,10 +133,13 @@ const FamiliesPage = () => {
         <DataTable instance={table}>
           <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <Heading>Families</Heading>
-            <CreateFamilyDrawer
-              customers={customersData?.customers ?? []}
-              onCreated={() => familiesQuery.refetch()}
-            />
+            <div className="flex gap-2">
+              <DataTable.Search placeholder="Szukaj po nazwie / grupie..." />
+              <CreateFamilyDrawer
+                customers={customersData?.customers ?? []}
+                onCreated={() => familiesQuery.refetch()}
+              />
+            </div>
           </DataTable.Toolbar>
           <DataTable.Table />
           <DataTable.Pagination />
