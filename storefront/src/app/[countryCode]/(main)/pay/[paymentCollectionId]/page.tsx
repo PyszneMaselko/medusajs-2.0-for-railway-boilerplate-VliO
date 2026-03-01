@@ -31,7 +31,7 @@ export default function PayExistingOrderPage() {
         // POST /store/payment-collections/{id}/payment-sessions
         // body: { provider_id, data? }
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_MEDUSA_URL}/store/payment-collections/${paymentCollectionId}/payment-sessions`,
+          `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/payment-collections/${paymentCollectionId}/payment-sessions`,
           {
             method: "POST",
             headers: {
