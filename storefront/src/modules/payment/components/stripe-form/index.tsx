@@ -87,7 +87,7 @@ export default function StripeForm({
           "disabled:opacity-50 disabled:cursor-not-allowed"
         )}
       >
-        {loading ? "Processing…" : "Pay now"}
+        {loading ? "Przetwarzanie…" : "Płacę teraz"}
       </button>
     </form>
     </>
