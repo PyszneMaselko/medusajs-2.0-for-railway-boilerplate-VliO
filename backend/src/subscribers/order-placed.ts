@@ -17,6 +17,7 @@ export default async function orderPlacedHandler({
     Modules.ORDER,
   );
   const customerModuleService: ICustomerModuleService = container.resolve(Modules.CUSTOMER)
+  const query = container.resolve("query");
 
   const order = await orderModuleService.retrieveOrder(data.id, {
     relations: ["items", "summary", "shipping_address"],
@@ -30,6 +31,18 @@ export default async function orderPlacedHandler({
   const customerFirstName = customer.first_name || order.shipping_address?.first_name || "";
   const customerLastName = customer.last_name || order.shipping_address?.last_name || "";
 
+  const { data: payment_collection_query } = await query.graph({
+  entity: "order_payment_collection",
+  fields: [
+    "*",
+    "order.*",
+    "payment_collection.*",
+  ],
+  filters: {
+    order_id: data.id,
+  },
+})
+
   try {
     await notificationModuleService.createNotifications({
       to: order.email,
@@ -38,10 +51,11 @@ export default async function orderPlacedHandler({
       data: {
         emailOptions: {
           replyTo: "system@platnosci.szkolaorlow.pl",
-          subject: "Szkoła Orłów - Zamówienie oczekuje na płatność",
+          subject: `Szkoła Orłów - Zamówienie oczekuje na płatność #${order.display_id}`,
         },
         order,
         shippingAddress,
+        payment_collection_id: payment_collection_query[0].payment_collection.id,
         preview: "Dziękujemy za korzystanie z naszych usług!",
       },
     });
