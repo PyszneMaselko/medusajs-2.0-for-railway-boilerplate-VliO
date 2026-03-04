@@ -59,7 +59,7 @@ const OrderSummary = ({ orderDetails }: Props) => {
       <div className="flex flex-col gap-1">
         <h2 className="text-ui-fg-base text-xl font-semibold">Order Details</h2>
         <p className="text-ui-fg-subtle text-sm">
-          Order number: #{order.display_id} • {order.email}
+          Order #{order.display_id} • {order.email}
         </p>
       </div>
 
