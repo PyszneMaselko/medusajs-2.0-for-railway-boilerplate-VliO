@@ -8,6 +8,7 @@ import { clx, Text, Button } from "@medusajs/ui"
 import { RadioGroup } from "@headlessui/react"
 import { ChevronLeft } from "@medusajs/icons"
 
+import OrderSummary from "@modules/payment/components/order-summary"
 import StripeForm from "@modules/payment/components/stripe-form"
 import Radio from "@modules/common/components/radio"
 
@@ -36,18 +37,48 @@ export default function PayExistingOrderPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  /**
-   * 🔁 RESET przy zmianie providera
-   * (Stripe NIE pozwala zmieniać metod na istniejącym PI)
-   */
+  const [orderDetails, setOrderDetails] = useState<any | null>(null)
+  const [orderLoading, setOrderLoading] = useState(true)
+
+  useEffect(() => {
+    if (!paymentCollectionId) return
+
+    const fetchOrderDetails = async () => {
+      try {
+        setOrderLoading(true)
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL}/store/order-summary/${paymentCollectionId}`,
+          {
+            headers: {
+              "x-publishable-api-key":
+                process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+            },
+          }
+        )
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch order details")
+        }
+
+        const data = await res.json()
+
+        setOrderDetails(data.order_details)
+      } catch (err) {
+        console.error("Order summary fetch error:", err)
+      } finally {
+        setOrderLoading(false)
+      }
+    }
+
+    fetchOrderDetails()
+  }, [paymentCollectionId])
+
   useEffect(() => {
     setClientSecret(null)
     setError(null)
   }, [selectedProvider])
 
-  /**
-   * ▶️ User świadomie zatwierdza metodę
-   */
   const handleConfirmProvider = async () => {
     if (!paymentCollectionId) return
 
@@ -94,117 +125,133 @@ export default function PayExistingOrderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-ui-bg-subtle flex items-center justify-center px-4">
-      <div
-        className={clx(
-          "w-full max-w-md bg-ui-bg-base rounded-2xl shadow-md",
-          "border border-ui-border-base p-8 flex flex-col gap-6"
-        )}
-      >
-        <div className="flex flex-col gap-1">
-          <h1 className="text-ui-fg-base text-xl font-semibold">
-            Complete your payment
-          </h1>
-          <p className="text-ui-fg-subtle text-sm">
-            Secure payment powered by Stripe
-          </p>
-        </div>
-
-        <hr className="border-ui-border-base" />
-
-        {/* ERROR */}
-        {error && (
-          <div className="bg-ui-tag-red-bg border border-ui-tag-red-border rounded-lg px-4 py-3">
-            <p className="text-ui-tag-red-text text-sm font-medium">{error}</p>
-          </div>
-        )}
-
-        {/* PROVIDER SELECTION */}
-        {!clientSecret && (
-          <>
-            <RadioGroup
-              value={selectedProvider}
-              onChange={setSelectedProvider}
-              className="flex flex-col gap-y-2"
-            >
-              {PAYMENT_OPTIONS.map((option) => (
-                <RadioGroup.Option
-                  key={option.id}
-                  value={option.id}
-                  className={({ checked }) =>
-                    clx(
-                      "flex items-center justify-between cursor-pointer py-4 px-6 border rounded-rounded",
-                      {
-                        "border-ui-border-interactive": checked,
-                        "border-ui-border-base": !checked,
-                      }
-                    )
-                  }
-                >
-                  {({ checked }) => (
-                    <div className="flex items-center gap-x-4">
-                      <Radio checked={checked} />
-                      <Text className="text-base-regular">{option.title}</Text>
-                    </div>
-                  )}
-                </RadioGroup.Option>
-              ))}
-            </RadioGroup>
-
-            {/* <Button
-              variant="primary"
-              className="w-full mt-4"
-              onClick={handleConfirmProvider}
-              isLoading={loading}
-            >
-              Kontynuuj
-            </Button> */}
-            <button
-              type="submit"
-              className={clx(
-                "w-full rounded-lg py-3 text-sm font-medium transition-colors",
-                "bg-ui-button-inverted text-ui-fg-on-inverted",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-              onClick={handleConfirmProvider}
-            >
-              {loading ? "Przetwarzanie…" : "Wybierz metodę płatności"}
-            </button>
-          </>
-        )}
-
-        {/* STRIPE ELEMENTS */}
-        {clientSecret && (
-          <>
-            <div className="flex justify-start mt-4">
-              <Text
-                className={clx(
-                  "flex items-center gap-1 text-ui-fg-interactive cursor-pointer transition-colors",
-                  "hover:text-ui-fg-base"
-                )}
-                onClick={() => setSelectedProvider("")}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Wybierz inną metodę płatności
-              </Text>
-            </div>
-            <Elements
-              stripe={stripePromise}
-              options={{ clientSecret }}
-              key={clientSecret}
-            >
-              <StripeForm
-                clientSecret={clientSecret}
-                paymentCollectionId={paymentCollectionId}
-              />
-            </Elements>
-          </>
-        )}
-
-        <p className="text-ui-fg-muted text-xs text-center mt-2">
-          Your payment information is encrypted and secure.
-        </p>
+    <>
+      {/* TOP IMAGE */}
+      <div className="flex justify-center bg-ui-bg-subtle pt-20">
+        <img
+          src="https://pub-e427b961a1934164ab082ad3816c986d.r2.dev/AcademyPoint_Logo.png"
+          alt="Order summary"
+          className="h-16 w-auto rounded-lg border border-ui-border-base"
+        />
       </div>
-    </div>
+      <div className="min-h-[90vh] bg-ui-bg-subtle flex justify-center px-4 pt-16">
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-[2fr,1.5fr] gap-6">
+          {/* ORDER DETAILS – lewa kolumna */}
+          <div>
+            {orderLoading && (
+              <Text size="small" className="text-ui-fg-subtle">
+                Ładowanie szczegółów zamówienia…
+              </Text>
+            )}
+            {orderDetails && <OrderSummary orderDetails={orderDetails} />}
+          </div>
+
+          {/* PAYMENT – prawa kolumna */}
+          <div>
+            <div
+              className={clx(
+                "w-full bg-ui-bg-base rounded-2xl shadow-md",
+                "border border-ui-border-base p-8 flex flex-col gap-6"
+              )}
+            >
+              <div className="flex flex-col gap-1">
+                <h1 className="text-ui-fg-base text-xl font-semibold">
+                  Complete your payment
+                </h1>
+                <p className="text-ui-fg-subtle text-sm">
+                  Secure payment powered by Stripe
+                </p>
+              </div>
+
+              <hr className="border-ui-border-base" />
+
+              {/* ERROR */}
+              {error && (
+                <div className="bg-ui-tag-red-bg border border-ui-tag-red-border rounded-lg px-4 py-3">
+                  <p className="text-ui-tag-red-text text-sm font-medium">
+                    {error}
+                  </p>
+                </div>
+              )}
+
+              {/* PROVIDER SELECTION */}
+              {!clientSecret && (
+                <>
+                  <RadioGroup
+                    value={selectedProvider}
+                    onChange={setSelectedProvider}
+                    className="flex flex-col gap-y-2"
+                  >
+                    {PAYMENT_OPTIONS.map((option) => (
+                      <RadioGroup.Option
+                        key={option.id}
+                        value={option.id}
+                        className={({ checked }) =>
+                          clx(
+                            "flex items-center justify-between cursor-pointer py-4 px-6 border rounded-rounded",
+                            {
+                              "border-ui-border-interactive": checked,
+                              "border-ui-border-base": !checked,
+                            }
+                          )
+                        }
+                      >
+                        {({ checked }) => (
+                          <div className="flex items-center gap-x-4">
+                            <Radio checked={checked} />
+                            <Text className="text-base-regular">
+                              {option.title}
+                            </Text>
+                          </div>
+                        )}
+                      </RadioGroup.Option>
+                    ))}
+                  </RadioGroup>
+
+                  <button
+                    type="button"
+                    className={clx(
+                      "w-full rounded-lg py-3 text-sm font-medium transition-colors",
+                      "bg-ui-button-inverted text-ui-fg-on-inverted"
+                    )}
+                    onClick={handleConfirmProvider}
+                  >
+                    {loading ? "Przetwarzanie…" : "Wybierz metodę płatności"}
+                  </button>
+                </>
+              )}
+
+              {/* STRIPE */}
+              {clientSecret && (
+                <>
+                  <Text
+                    className="flex items-center gap-1 text-ui-fg-interactive cursor-pointer"
+                    onClick={() => setSelectedProvider("")}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Wybierz inną metodę płatności
+                  </Text>
+
+                  <Elements
+                    stripe={stripePromise}
+                    options={{ clientSecret }}
+                    key={clientSecret}
+                  >
+                    <StripeForm
+                      clientSecret={clientSecret}
+                      paymentCollectionId={paymentCollectionId}
+                    />
+                  </Elements>
+                </>
+              )}
+
+              <p className="text-ui-fg-muted text-xs text-center">
+                Your payment information is encrypted and secure.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

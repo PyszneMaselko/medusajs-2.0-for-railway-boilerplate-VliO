@@ -24,6 +24,11 @@ export const paginationSchema: z.ZodSchema = createFindParams();
 
 export default defineMiddlewares({
   routes: [
+    // ORDER SUMMARY - STOREFRONT
+    {
+      matcher: "/store/order-summary/:id",
+      method: "GET",
+    },
     // ORDER SCHEDULE
     {
       matcher: "/admin/order-schedule/:id",
