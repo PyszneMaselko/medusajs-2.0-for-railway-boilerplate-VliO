@@ -48,8 +48,12 @@ const medusaConfig = {
   admin: {
     backendUrl: BACKEND_URL,
     disable: SHOULD_DISABLE_ADMIN,
+    storefrontUrl: process.env.MEDUSA_STOREFRONT_URL || "http://localhost:8000",
   },
   modules: [
+    {
+      resolve: "./src/modules/order_schedule",
+    },
     {
       resolve: "./src/modules/family",
     },
@@ -63,14 +67,27 @@ const medusaConfig = {
         providers: [
           ...(MINIO_ENDPOINT && MINIO_ACCESS_KEY && MINIO_SECRET_KEY
             ? [
+                // {
+                //   resolve: "./src/modules/minio-file",
+                //   id: "minio",
+                //   options: {
+                //     endPoint: MINIO_ENDPOINT,
+                //     accessKey: MINIO_ACCESS_KEY,
+                //     secretKey: MINIO_SECRET_KEY,
+                //     bucket: MINIO_BUCKET, // Optional, default: medusa-media
+                //   },
+                // },
                 {
-                  resolve: "./src/modules/minio-file",
-                  id: "minio",
+                  resolve: "@medusajs/medusa/file-s3",
+                  id: "s3",
                   options: {
-                    endPoint: MINIO_ENDPOINT,
-                    accessKey: MINIO_ACCESS_KEY,
-                    secretKey: MINIO_SECRET_KEY,
-                    bucket: MINIO_BUCKET, // Optional, default: medusa-media
+                    file_url: process.env.S3_FILE_URL,
+                    access_key_id: process.env.S3_ACCESS_KEY_ID,
+                    secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+                    region: process.env.S3_REGION,
+                    bucket: process.env.S3_BUCKET,
+                    endpoint: process.env.S3_ENDPOINT,
+                    // other options...
                   },
                 },
               ]
@@ -141,6 +158,13 @@ const medusaConfig = {
                       },
                     ]
                   : []),
+                {
+                  resolve: "@medusajs/medusa/notification-local",
+                  id: "local",
+                  options: {
+                    channels: ["feed"],
+                  },
+                },
               ],
             },
           },
@@ -159,6 +183,7 @@ const medusaConfig = {
                   options: {
                     apiKey: STRIPE_API_KEY,
                     webhookSecret: STRIPE_WEBHOOK_SECRET,
+                    automatic_payment_capture: true,
                   },
                 },
               ],

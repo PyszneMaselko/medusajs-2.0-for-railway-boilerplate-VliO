@@ -10,14 +10,14 @@ import {
   DataTablePaginationState,
   useDataTable,
   Button,
-  Text
+  Text,
 } from "@medusajs/ui";
 import { useQuery } from "@tanstack/react-query";
 import { sdk } from "../../lib/sdk.js";
 import { useMemo, useState } from "react";
 import { CreateFamilyDrawer } from "./components/CreateFamilyDrawer.js";
 import { DeleteFamilyButton } from "./components/DeleteFamilyButton.js";
-import { AdminCustomerListResponse } from "@medusajs/framework/types";
+import { useNavigate } from "react-router-dom";
 
 type Family = {
   id: string;
@@ -32,6 +32,10 @@ type FamiliesResponse = {
 };
 
 const FamiliesPage = () => {
+  const navigate = useNavigate();
+
+  const [search, setSearch] = useState<string>("");
+
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
@@ -71,7 +75,13 @@ const FamiliesPage = () => {
       id: "actions",
       header: "",
       cell: ({ row }) => (
-        <div className="flex w-full justify-end">
+        <div
+          className="flex w-full justify-end"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
           <DeleteFamilyButton
             familyName={row.original.name}
             familyId={row.original.id}
@@ -90,24 +100,30 @@ const FamiliesPage = () => {
       }),
   });
 
-  const { data: customersData, isLoading: isCustomersLoading } =
-    useQuery<AdminCustomerListResponse>({
-      queryKey: ["customers"],
-      queryFn: () =>
-        sdk.admin.customer.list({
-          fields: "+groups",
-        }),
-    });
+  const { data: customersData, isLoading: isCustomersLoading } = useQuery({
+    queryKey: ["customers"],
+    queryFn: () =>
+      sdk.admin.customer.list({
+        fields: "+groups",
+      }),
+  });
 
   const table = useDataTable({
     columns,
     data: familiesQuery.data?.families || [],
     getRowId: (row) => row.id,
     rowCount: familiesQuery.data?.count || 0,
+    search: {
+      state: search,
+      onSearchChange: setSearch,
+    },
     isCustomersLoading,
     pagination: {
       state: pagination,
       onPaginationChange: setPagination,
+    },
+    onRowClick(event, row) {
+      navigate(`/family/${row.id}`);
     },
   });
 
@@ -117,10 +133,13 @@ const FamiliesPage = () => {
         <DataTable instance={table}>
           <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <Heading>Families</Heading>
-            <CreateFamilyDrawer
-              customers={customersData?.customers ?? []}
-              onCreated={() => familiesQuery.refetch()}
-            />
+            <div className="flex gap-2">
+              <DataTable.Search placeholder="Szukaj po nazwie / grupie..." />
+              <CreateFamilyDrawer
+                customers={customersData?.customers ?? []}
+                onCreated={() => familiesQuery.refetch()}
+              />
+            </div>
           </DataTable.Toolbar>
           <DataTable.Table />
           <DataTable.Pagination />

@@ -21,7 +21,10 @@
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "checkJs": false
+    "checkJs": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false
   },
   "ts-node": {
     "swc": true
