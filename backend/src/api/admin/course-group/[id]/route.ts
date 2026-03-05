@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import { deleteCourseGroupWorkflow } from "workflows/course-group.ts/delete-course-group";
 import { updateCourseGroupWorkflow } from "workflows/course-group.ts/update-course-group";
-import { PutAdminUpdateCourseGroup } from "./validators";
+import { PutAdminUpdateCourseGroup } from "../validators";
 import z from "zod";
 import { removeStudentsFromGroupWorkflow } from "workflows/student/delete-student";
 
