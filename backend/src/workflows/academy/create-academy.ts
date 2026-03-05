@@ -14,19 +14,36 @@ export type CreateAcademyStepInput = {
   address_line_2?: string;
 };
 
+export type CreateCourseStepInput = {
+  name: string;
+  description?: string;
+  academy_id: string;
+};
+
+
+export const createCourseStepInternal = createStep(
+  "create-course-step",
+  async (input: CreateCourseStepInput, { container }) => {
+    const academyModuleService: AcademyModuleService =
+      container.resolve(ACADEMY_MODULE);
+
+    const course = await academyModuleService.createCourses(input);
+    return new StepResponse(course, course.id);
+  },
+);
+
 export const createAcademyStep = createStep(
   "create-academy-step",
   async (input: CreateAcademyStepInput, { container }) => {
     const academyModuleService: AcademyModuleService =
       container.resolve(ACADEMY_MODULE);
 
-      //Sprawdzamy czy podano adress_line 1 i 2
-      if(input.address_line_1 == undefined){
-        input.address_line_1 = null;
-      }
-    if(input.address_line_2 == undefined){
-        input.address_line_2 = null;
-      }
+    const data = {
+      ...input,
+      address_line_1: input.address_line_1 ?? null,
+      address_line_2: input.address_line_2 ?? null,
+    };
+
     const academy = await academyModuleService.createAcademies(input);
 
     return new StepResponse(academy, academy.id);
@@ -44,6 +61,14 @@ export const createAcademyWorkflow = createWorkflow(
   "create-academy",
   (input: CreateAcademyWorkflowInput) => {
     const academy = createAcademyStep(input);
+
+    const courseData = {
+      name: input.name,
+      description: "Automatyczny kurs",
+      academy_id: academy.id,
+    };
+
+    createCourseStepInternal(courseData);
 
     return new WorkflowResponse(academy);
   },

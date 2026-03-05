@@ -16,6 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { sdk } from "../../lib/sdk.js";
 import { useMemo, useState } from "react";
 import { CreateAcademyModal } from "./CreateAcademyModal";
+import { Link } from "react-router-dom";
 
 type Academy = {
   id: string;
@@ -31,7 +32,6 @@ type AcademiesResponse = {
 };
 
 const AcademiesPage = () => {
-  // TODO retrieve academies
   const limit = 15;
   const [pagination, setPagination] = useState<DataTablePaginationState>({
     pageSize: limit,
@@ -53,6 +53,7 @@ const AcademiesPage = () => {
   });
 
   const queryClient = useQueryClient();
+  
   const { mutateAsync: deleteAcademy } = useMutation({
     mutationFn: (id: string) =>
       sdk.client.fetch(`/admin/academy/${id}`, {
@@ -95,50 +96,42 @@ const AcademiesPage = () => {
         {/* Content */}
         <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-1">
           {data.academies.map((academy) => (
-            <Container key={academy.id} className="flex flex-col">
-              <div className="flex items-start justify-between">
-                <Text size="large" weight="plus">
-                  Name: {academy.name}
-                </Text>
-                <Text size="large">Address: {academy.address_line_1}</Text>
-                {/* <Text size="large">Address 2: {academy.address_line_2}</Text> */}
-
-                <CreateAcademyModal
-                  initialData={academy}
-                  trigger={
-                    <Button variant="secondary" size="small">
-                      <PencilSquare /> Edit
-                    </Button>
-                  }
+            <Container
+              key={academy.id}
+              className="group relative flex flex-col hover:bg-ui-bg-subtle transition-colors"
+            >
+              <div className="flex intems-start justify-between">
+                <Link
+                  to={`/academy/${academy.id}`}
+                  className="absolute inset-0 z-0"
                 />
 
-                <Button
-                  variant="primary"
-                  onClick={() => handleDelete(academy.id)}
-                >
-                  <XMark />
-                  Delete
-                </Button>
+                <div className="relative z-10 flex flex-col pointer-events-none">
+                  <Text size="large" weight="plus">
+                    {academy.name}
+                  </Text>
+                  <Text size="small" className="text-ui-fg-subtle">
+                    Address: {academy.address_line_1}
+                  </Text>
+                </div>
 
-                {/* <DropdownMenu>
-              <DropdownMenu.Trigger asChild>
-                <Button variant="transparent" size="small">
-                  <EllipsisHorizontal />
-                </Button>
-              </DropdownMenu.Trigger>
+                <div className="relative z-1 flex items-center gap-x-5">
+                  <CreateAcademyModal
+                    initialData={academy}
+                    trigger={
+                      <Button variant="primary">
+                        <PencilSquare /> Edit
+                      </Button>
+                    }
+                  />
 
-              <DropdownMenu.Content>
-                <DropdownMenu.Item onClick={() => onEdit(academy.id)}>
-                  Edit
-                </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  className="text-ui-fg-error"
-                  onClick={() => onDelete(academy.id)}
-                >
-                  Delete
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu> */}
+                  <Button
+                    variant="primary"
+                    onClick={() => handleDelete(academy.id)}
+                  >
+                    <XMark /> Delete
+                  </Button>
+                </div>
               </div>
             </Container>
           ))}
