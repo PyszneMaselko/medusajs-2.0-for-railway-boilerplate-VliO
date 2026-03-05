@@ -7,11 +7,13 @@ import { clx } from "@medusajs/ui"
 type StripeFormProps = {
   clientSecret: string
   paymentCollectionId: string
+  setIsPaid: Function
 }
 
 export default function StripeForm({
   clientSecret,
   paymentCollectionId,
+  setIsPaid,
 }: StripeFormProps) {
   const stripe = useStripe()
   const elements = useElements()
@@ -56,7 +58,7 @@ export default function StripeForm({
       paymentIntent?.status === "succeeded"
     ) {
       // TODO: complete the cart / place order via your backend
-      alert("Payment successful!")
+      setIsPaid(true);
     }
 
     setLoading(false)

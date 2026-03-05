@@ -6,7 +6,7 @@ import { Elements } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
 import { clx, Text, Button } from "@medusajs/ui"
 import { RadioGroup } from "@headlessui/react"
-import { ChevronLeft } from "@medusajs/icons"
+import { ChevronLeft, EllipseGreenSolid } from "@medusajs/icons"
 
 import OrderSummary from "@modules/payment/components/order-summary"
 import StripeForm from "@modules/payment/components/stripe-form"
@@ -40,6 +40,8 @@ export default function PayExistingOrderPage() {
   const [orderDetails, setOrderDetails] = useState<any | null>(null)
   const [orderLoading, setOrderLoading] = useState(true)
 
+  const [isPaid, setIsPaid] = useState(false)
+
   useEffect(() => {
     if (!paymentCollectionId) return
 
@@ -64,6 +66,9 @@ export default function PayExistingOrderPage() {
         const data = await res.json()
 
         setOrderDetails(data.order_details)
+        if(data.order_details.payment_collection.status === "completed") {
+          setIsPaid(data.order_details.payment_collection.status)
+        }
       } catch (err) {
         console.error("Order summary fetch error:", err)
       } finally {
@@ -72,7 +77,7 @@ export default function PayExistingOrderPage() {
     }
 
     fetchOrderDetails()
-  }, [paymentCollectionId])
+  }, [paymentCollectionId, isPaid])
 
   useEffect(() => {
     setClientSecret(null)
@@ -123,6 +128,60 @@ export default function PayExistingOrderPage() {
       setLoading(false)
     }
   }
+  if (isPaid) return (
+    <>
+      {/* TOP IMAGE */}
+      <div className="flex justify-center bg-ui-bg-subtle pt-20">
+        <img
+          src="https://pub-e427b961a1934164ab082ad3816c986d.r2.dev/AcademyPoint_Logo.png"
+          alt="Order summary"
+          className="h-16 w-auto rounded-lg border border-ui-border-base"
+        />
+      </div>
+      <div className="min-h-[90vh] bg-ui-bg-subtle flex justify-center px-4 pt-16">
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-[2fr,1.5fr] gap-6">
+          {/* ORDER DETAILS – lewa kolumna */}
+          <div>
+            {orderLoading && (
+              <Text size="small" className="text-ui-fg-subtle">
+                Ładowanie szczegółów zamówienia…
+              </Text>
+            )}
+            {orderDetails && <OrderSummary orderDetails={orderDetails} />}
+          </div>
+
+          {/* PAYMENT – prawa kolumna */}
+          <div>
+            <div
+              className={clx(
+                "w-full bg-ui-bg-base rounded-2xl shadow-md",
+                "border border-ui-border-base p-8 flex flex-col gap-6"
+              )}
+            >
+              <div className="flex flex-col gap-1">
+                <h1 className="text-ui-fg-base text-xl font-semibold">
+                  Payment Completed!
+                </h1>
+                <p className="text-ui-fg-subtle text-sm">
+                  Your payment was authorized succesfully.
+                </p>
+              </div>
+
+              <hr className="border-ui-border-base" />
+
+              <Text className="flex items-center gap-2">
+                <EllipseGreenSolid /> Payment Completed
+                </Text>
+
+              <p className="text-ui-fg-muted text-xs text-center">
+                Thank you!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  )
 
   return (
     <>
@@ -240,6 +299,7 @@ export default function PayExistingOrderPage() {
                     <StripeForm
                       clientSecret={clientSecret}
                       paymentCollectionId={paymentCollectionId}
+                      setIsPaid={setIsPaid}
                     />
                   </Elements>
                 </>

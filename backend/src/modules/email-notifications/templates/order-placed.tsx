@@ -5,6 +5,8 @@ import { OrderDTO, OrderAddressDTO } from "@medusajs/framework/types";
 
 export const ORDER_PLACED = "order-placed";
 
+const STOREFRONT_URL = process.env.MEDUSA_STOREFRONT_URL ?? "http://localhost:8000"
+
 interface OrderPlacedPreviewProps {
   order: OrderDTO & {
     display_id: string;
@@ -19,6 +21,7 @@ export interface OrderPlacedTemplateProps {
     summary: { raw_current_order_total: { value: number } };
   };
   shippingAddress: OrderAddressDTO;
+  payment_collection_id: string;
   preview?: string;
 }
 
@@ -29,10 +32,10 @@ export const isOrderPlacedTemplateData = (
 
 export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
   PreviewProps: OrderPlacedPreviewProps;
-} = ({ order, shippingAddress, preview = "Your order has been placed!" }) => {
+} = ({ order, shippingAddress, payment_collection_id, preview = "Your order has been placed!" }) => {
   return (
     <Base preview={preview}>
-      <Section style={{ textAlign: 'center' }}>
+      <Section style={{ textAlign: "center" }}>
         {/* <img src="https://szkolaorlow.pl/wp-content/uploads/2018/10/SzkolaOrlowLogo.png" alt="Logo" width={140} style={{ marginBottom: '20px' }}/> */}
         <Text
           style={{
@@ -50,7 +53,9 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
         >
           Zamówienie
         </Text>
-        <Text style={{ margin: "0 0 5px" }}>Numer zamówienia: #{order.display_id}</Text>
+        <Text style={{ margin: "0 0 5px" }}>
+          Numer zamówienia: #{order.display_id}
+        </Text>
         <Text style={{ margin: "0 0 5px" }}>
           Data wystawienia: {new Date(order.updated_at).toLocaleDateString()}
         </Text>
@@ -59,7 +64,20 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
           {order.currency_code.toUpperCase()}
         </Text>
 
-        <Button >Zapłać</Button>
+        <Button
+          href={`${STOREFRONT_URL}/payment-collection/${payment_collection_id}`}
+          style={{
+            backgroundColor: "#16a34a",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontWeight: "bold",
+            display: "inline-block",
+          }}
+        >
+          Zapłać teraz
+        </Button>
 
         <Hr style={{ margin: "20px 0" }} />
 
@@ -68,7 +86,9 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
         >
           Adres rozliczenia
         </Text>
-        <Text style={{ margin: "0 0 5px" }}>{shippingAddress.first_name} {shippingAddress.last_name}</Text>
+        <Text style={{ margin: "0 0 5px" }}>
+          {shippingAddress.first_name} {shippingAddress.last_name}
+        </Text>
         <Text style={{ margin: "0 0 5px" }}>{shippingAddress.address_1}</Text>
         <Text style={{ margin: "0 0 5px" }}>
           {shippingAddress.city}, {shippingAddress.province}{" "}
@@ -118,11 +138,13 @@ export const OrderPlacedTemplate: React.FC<OrderPlacedTemplateProps> & {
               }}
             >
               <Text>
-                {item.title}{" "}
-              </Text>
-              <Text>x{item.quantity} </Text>
-              <Text>
-                 - {item.unit_price} {order.currency_code.toUpperCase()}
+                {item.title} x{item.quantity}
+                {" - "}
+                {formatAmount(
+                  item.unit_price * item.quantity,
+                  order.currency_code,
+                )}{" "}
+                {/* {item.unit_price} {order.currency_code.toUpperCase()} */}
               </Text>
             </div>
           ))}
@@ -176,5 +198,11 @@ OrderPlacedTemplate.PreviewProps = {
     country_code: "US",
   },
 } as OrderPlacedPreviewProps;
+
+const formatAmount = (amount: number, currency: string) =>
+  new Intl.NumberFormat("pl-PL", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount);
 
 export default OrderPlacedTemplate;
