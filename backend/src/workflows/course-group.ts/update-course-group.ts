@@ -4,7 +4,7 @@ import {
   createWorkflow,
   StepResponse,
   WorkflowResponse,
-  transform, // <--- Dodaj transform
+  transform,
 } from "@medusajs/framework/workflows-sdk";
 import {
   dismissRemoteLinkStep,
@@ -16,8 +16,8 @@ import AcademyModuleService from "modules/academy/service";
 export type UpdateCourseGroupInput = {
   id: string;
   name?: string;
-  start_date?: Date;
-  end_date?: Date;
+  start_date?: string;
+  end_date?: string;
   course_id?: string;
   teacher_id?: string;
   student_ids?: string[];
@@ -30,6 +30,12 @@ export const updateCourseGroupStep = createStep(
       container.resolve(ACADEMY_MODULE);
 
     const { id, student_ids, ...data } = input;
+
+      const start_date = new Date(input.start_date);
+      const end_date = new Date(input.start_date);
+    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+      throw new Error("Invalid Date provided");
+    }
 
     const cleanData = Object.fromEntries(
       Object.entries(data).filter(([_, value]) => value !== undefined),
@@ -57,8 +63,8 @@ export const updateCourseGroupStep = createStep(
 type UpdateCourseGroupWorkflowInput = {
   id: string;
   name?: string;
-  start_date?: Date;
-  end_date?: Date;
+  start_date?: string;
+  end_date?: string;
   course_id?: string;
   teacher_id?: string;
   student_ids?: string[];
