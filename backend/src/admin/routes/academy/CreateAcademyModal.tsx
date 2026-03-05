@@ -1,8 +1,6 @@
 import { useState } from "react";
 import {
   Button,
-  FocusModal,
-  Heading,
   Input,
   Label,
   Drawer,
@@ -72,14 +70,14 @@ export const CreateAcademyModal = ({
   };
 
   return (
-    <Drawer open={open} onOpenChange={setOpen}>
+    <Drawer open={open} onOpenChange={setOpen} className="z-50">
       <Drawer.Trigger asChild>
         {isEdit ? (
-          <Button variant="primary" size="small">
+          <Button variant="primary">
             <PencilSquare /> Edit
           </Button>
         ) : (
-          <Button variant="primary" size="small">
+          <Button variant="primary">
             <Plus /> Add Academy
           </Button>
         )}
@@ -133,7 +131,7 @@ export const CreateAcademyModal = ({
                 </Button>
               </Drawer.Close>
               <Button type="submit" size="small" isLoading={loading}>
-                {isEdit ? "Update Location" : "Add Location"}
+                {isEdit ? "Edit Location" : "Add Location"}
               </Button>
             </div>
           </Drawer.Footer>

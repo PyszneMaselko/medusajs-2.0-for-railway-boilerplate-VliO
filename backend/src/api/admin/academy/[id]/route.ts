@@ -30,3 +30,16 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     res.json({ academy: result })
 
 };
+
+export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  const query = req.scope.resolve("query");
+  const { data: academy } = await query.graph({
+    entity: "academy",
+    fields: ["*", "courses.*"],
+    filters: {
+      id: req.params.id,
+    },
+  });
+
+  res.json({ academy: academy[0] });
+};
