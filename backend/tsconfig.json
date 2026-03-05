@@ -14,9 +14,9 @@
     "outDir": "./.medusa/server",
     "rootDir": "./",
     "baseUrl": ".",
-    "paths": {
-      "*": ["./src/*"]
-    },
+    // "paths": {
+    //   "*": ["./src/*"]
+    // },
     "lib": ["dom", "es2021"],
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,

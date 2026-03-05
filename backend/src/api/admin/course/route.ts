@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import z from "zod";
 import { PostAdminCreateCourse } from "./validators";
-import { createCourseWorkflow } from "workflows/course/create-course";
+import { createCourseWorkflow } from "../../../workflows/course/create-course";
 
 type PostAdminCreateCourse = z.infer<typeof PostAdminCreateCourse>;
 

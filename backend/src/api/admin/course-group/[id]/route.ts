@@ -1,9 +1,9 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { deleteCourseGroupWorkflow } from "workflows/course-group.ts/delete-course-group";
-import { updateCourseGroupWorkflow } from "workflows/course-group.ts/update-course-group";
+import { deleteCourseGroupWorkflow } from "../../../../workflows/course-group.ts/delete-course-group";
+import { updateCourseGroupWorkflow } from "../../../../workflows/course-group.ts/update-course-group";
 import { PutAdminUpdateCourseGroup } from "../validators";
 import z from "zod";
-import { removeStudentsFromGroupWorkflow } from "workflows/student/delete-student";
+import { removeStudentsFromGroupWorkflow } from "../../../../workflows/student/delete-student";
 
 type PutAdminUpdateCourseGroup = z.infer<typeof PutAdminUpdateCourseGroup>;
 
