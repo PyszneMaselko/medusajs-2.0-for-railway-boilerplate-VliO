@@ -30,32 +30,34 @@ export const updateCourseGroupStep = createStep(
       container.resolve(ACADEMY_MODULE);
 
     const { id, student_ids, ...data } = input;
+    const updateData: any = {};
 
-      const start_date = new Date(input.start_date);
-      const end_date = new Date(input.start_date);
-    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
-      throw new Error("Invalid Date provided");
+    if (input.start_date) {
+      const startDate = new Date(input.start_date);
+      if (isNaN(startDate.getTime())) {
+        throw new Error("Invalid start_date provided");
+      }
+      updateData.start_date = startDate;
     }
 
-    const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
-    );
-
+    if (input.end_date) {
+      const endDate = new Date(input.end_date);
+      if (isNaN(endDate.getTime())) {
+        throw new Error("Invalid end_date provided");
+      }
+      updateData.end_date = endDate;
+    }
     let courseGroup = null;
 
-    if (Object.keys(cleanData).length > 0) {
+    if (Object.keys(updateData).length > 0) {
       const updatedGroups = await academyModuleService.updateCourseGroups({
         id: id,
-        ...cleanData,
+        ...updateData,
       });
-      courseGroup = JSON.parse(
-        JSON.stringify(updatedGroups[0] || updatedGroups),
-      );
+      courseGroup = updatedGroups[0] || updatedGroups;
     } else {
       courseGroup = await academyModuleService.retrieveCourseGroup(id);
-      courseGroup = JSON.parse(JSON.stringify(courseGroup));
     }
-
     return new StepResponse(courseGroup, courseGroup.id);
   },
 );
@@ -92,7 +94,6 @@ export const updateCourseGroupWorkflow = createWorkflow(
       return Array.isArray(data.input.student_ids);
     });
 
-    
     if (shouldSyncLinks) {
       dismissRemoteLinkStep({
         [Modules.CUSTOMER]: {
