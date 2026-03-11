@@ -4,7 +4,7 @@ import {
   createWorkflow,
   StepResponse,
   WorkflowResponse,
-  transform, // <--- Dodaj transform
+  transform,
 } from "@medusajs/framework/workflows-sdk";
 import {
   dismissRemoteLinkStep,
@@ -16,8 +16,8 @@ import AcademyModuleService from "modules/academy/service";
 export type UpdateCourseGroupInput = {
   id: string;
   name?: string;
-  start_date?: Date;
-  end_date?: Date;
+  start_date?: string;
+  end_date?: string;
   course_id?: string;
   teacher_id?: string;
   student_ids?: string[];
@@ -30,26 +30,34 @@ export const updateCourseGroupStep = createStep(
       container.resolve(ACADEMY_MODULE);
 
     const { id, student_ids, ...data } = input;
+    const updateData: any = {};
 
-    const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
-    );
-
-    let courseGroup = null;
-
-    if (Object.keys(cleanData).length > 0) {
-      const updatedGroups = await academyModuleService.updateCourseGroups({
-        id: id,
-        ...cleanData,
-      });
-      courseGroup = JSON.parse(
-        JSON.stringify(updatedGroups[0] || updatedGroups),
-      );
-    } else {
-      courseGroup = await academyModuleService.retrieveCourseGroup(id);
-      courseGroup = JSON.parse(JSON.stringify(courseGroup));
+    if (input.start_date) {
+      const startDate = new Date(input.start_date);
+      if (isNaN(startDate.getTime())) {
+        throw new Error("Invalid start_date provided");
+      }
+      updateData.start_date = startDate;
     }
 
+    if (input.end_date) {
+      const endDate = new Date(input.end_date);
+      if (isNaN(endDate.getTime())) {
+        throw new Error("Invalid end_date provided");
+      }
+      updateData.end_date = endDate;
+    }
+    let courseGroup = null;
+
+    if (Object.keys(updateData).length > 0) {
+      const updatedGroups = await academyModuleService.updateCourseGroups({
+        id: id,
+        ...updateData,
+      });
+      courseGroup = updatedGroups[0] || updatedGroups;
+    } else {
+      courseGroup = await academyModuleService.retrieveCourseGroup(id);
+    }
     return new StepResponse(courseGroup, courseGroup.id);
   },
 );
@@ -57,8 +65,8 @@ export const updateCourseGroupStep = createStep(
 type UpdateCourseGroupWorkflowInput = {
   id: string;
   name?: string;
-  start_date?: Date;
-  end_date?: Date;
+  start_date?: string;
+  end_date?: string;
   course_id?: string;
   teacher_id?: string;
   student_ids?: string[];
@@ -86,7 +94,6 @@ export const updateCourseGroupWorkflow = createWorkflow(
       return Array.isArray(data.input.student_ids);
     });
 
-    
     if (shouldSyncLinks) {
       dismissRemoteLinkStep({
         [Modules.CUSTOMER]: {

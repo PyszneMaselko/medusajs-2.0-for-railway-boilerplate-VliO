@@ -1,7 +1,7 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { deleteCourseGroupWorkflow } from "workflows/course-group.ts/delete-course-group";
-import { updateCourseGroupWorkflow } from "workflows/course-group.ts/update-course-group";
-import { PutAdminUpdateCourseGroup } from "./validators";
+import { deleteCourseGroupWorkflow } from "../../../../workflows/course-group/delete-course-group";
+import { updateCourseGroupWorkflow } from "../../../../workflows/course-group/update-course-group";
+import { PutAdminUpdateCourseGroup } from "../validators";
 import z from "zod";
 import { removeStudentsFromGroupWorkflow } from "workflows/student/delete-student";
 
@@ -13,10 +13,18 @@ interface DeleteCourseGroupRequest {
 
 export const DELETE = async (req: MedusaRequest<any>, res: MedusaResponse) => {
   const { id } = req.params;
-  const { result } = await removeStudentsFromGroupWorkflow(req.scope).run({
+  const { student_ids } = req.body;
+
+  if (student_ids && Array.isArray(student_ids) && student_ids.length > 0) {
+    const { result } = await removeStudentsFromGroupWorkflow(req.scope).run({
+      input: { id, student_ids },
+    });
+    return res.json(result)
+  }
+
+  const { result } = await deleteCourseGroupWorkflow(req.scope).run({
     input: {
       id: id,
-      student_ids: req.body.student_ids, 
     },
   });
 
@@ -50,11 +58,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { data } = await query.graph({
     entity: "course_group",
-    fields: [
-      "id",
-      "name",
-      "customers.*",
-    ],
+    fields: ["id", "name", "customers.*"],
     filters: {
       id: id,
     },
@@ -62,15 +66,17 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const group = data[0];
 
   if (!group) {
-    return res.status(404).json({ 
-      message: `Group with id ${id} not found` 
+    return res.status(404).json({
+      message: `Group with id ${id} not found`,
     });
   }
   let students = [];
   if (group?.customer) {
-    students = Array.isArray(group.customer) ? group.customer : [group.customer];
+    students = Array.isArray(group.customer)
+      ? group.customer
+      : [group.customer];
   }
-  res.json({ 
-    students: group.customers || [] 
+  res.json({
+    students: group.customers || [],
   });
 };
