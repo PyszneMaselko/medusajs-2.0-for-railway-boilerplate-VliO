@@ -1,5 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { createCourseGroupWorkflow } from "../../../workflows/course-group.ts/create-course-group";
+import { createCourseGroupWorkflow } from "../../../workflows/course-group/create-course-group";
 import { PostAdminCreateCourseGroup } from "./validators";
 import z from "zod";
 
