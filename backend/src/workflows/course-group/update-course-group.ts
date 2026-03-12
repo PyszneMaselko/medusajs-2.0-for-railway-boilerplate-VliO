@@ -57,19 +57,15 @@ export const updateCourseGroupStep = createStep(
 
     let courseGroup = null;
 
-    if (Object.keys(cleanData).length > 0) {
+    if (Object.keys(updateData).length > 0) {
       const updatedGroups = await academyModuleService.updateCourseGroups({
         id: id,
-        ...cleanData,
+        ...updateData,
       });
-      courseGroup = JSON.parse(
-        JSON.stringify(updatedGroups[0] || updatedGroups),
-      );
+      courseGroup = updatedGroups[0] || updatedGroups;
     } else {
       courseGroup = await academyModuleService.retrieveCourseGroup(id);
-      courseGroup = JSON.parse(JSON.stringify(courseGroup));
     }
-
     return new StepResponse(courseGroup, courseGroup.id);
   },
 );
