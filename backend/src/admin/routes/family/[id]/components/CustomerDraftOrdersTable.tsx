@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { HttpTypes } from "@medusajs/types";
 import { useCustomerDraftOrders } from "../hooks/use-customer-draft-orders.js";
 import { TriggerCalendar } from "./TriggerCalendar.js";
+import { DraftOrderDetailsDrawer } from "./DraftOrderDetailsDrawer.js";
 
 type PaymentStatus =
   | "not_paid"
@@ -78,7 +79,9 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
     () => [
       columnHelper.accessor("display_id", {
         header: "Draft order",
-        cell: ({ getValue }) => `#${getValue()}`,
+        cell: ({ row }) => (
+          <DraftOrderDetailsDrawer draftOrder={row.original} />
+        ),
       }),
       columnHelper.display({
         id: "trigger_date",
@@ -98,11 +101,7 @@ export const CustomerDraftOrdersTable = ({ customers = [] }: Props) => {
                         {new Date(triggerDate).toLocaleDateString()}
                       </StatusBadge>
 
-                      {clone && (
-                        <Badge size="xsmall">
-                          Clone
-                        </Badge>
-                      )}
+                      {clone && <Badge size="xsmall">Clone</Badge>}
                     </>
                   ) : (
                     <StatusBadge color="grey">Never</StatusBadge>

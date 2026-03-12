@@ -93,10 +93,10 @@ const FamiliesPage = () => {
   ];
 
   const familiesQuery = useQuery<FamiliesResponse>({
-    queryKey: ["families", limit, offset],
+    queryKey: ["families", limit, offset, search],
     queryFn: () =>
       sdk.client.fetch("/admin/family", {
-        query: { limit, offset },
+        query: { limit, offset, },
       }),
   });
 
@@ -134,7 +134,7 @@ const FamiliesPage = () => {
           <DataTable.Toolbar className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
             <Heading>Families</Heading>
             <div className="flex gap-2">
-              <DataTable.Search placeholder="Szukaj po nazwie / grupie..." />
+              {/* <DataTable.Search placeholder="Szukaj po nazwie / grupie..." /> */}
               <CreateFamilyDrawer
                 customers={customersData?.customers ?? []}
                 onCreated={() => familiesQuery.refetch()}

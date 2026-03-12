@@ -31,14 +31,28 @@ export const updateCourseGroupStep = createStep(
 
     const { id, student_ids, ...data } = input;
 
-      const start_date = new Date(input.start_date);
-      const end_date = new Date(input.start_date);
-    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
-      throw new Error("Invalid Date provided");
+    var start_date = undefined;
+    var end_date = undefined;
+
+    if (data.start_date) {
+      start_date = new Date(input.start_date);
+      if (isNaN(start_date.getTime())) {
+        throw new Error("Invalid Date provided");
+      }
+    }
+    if (data.end_date) {
+      end_date = new Date(input.end_date);
+      if (isNaN(end_date.getTime())) {
+        throw new Error("Invalid Date provided");
+      }
     }
 
     const cleanData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== undefined),
+      Object.entries({
+        ...data,
+        ...(start_date && { start_date: new Date(start_date) }),
+        ...(end_date && { end_date: new Date(end_date) }),
+      }).filter(([_, value]) => value !== undefined),
     );
 
     let courseGroup = null;
@@ -92,7 +106,6 @@ export const updateCourseGroupWorkflow = createWorkflow(
       return Array.isArray(data.input.student_ids);
     });
 
-    
     if (shouldSyncLinks) {
       dismissRemoteLinkStep({
         [Modules.CUSTOMER]: {

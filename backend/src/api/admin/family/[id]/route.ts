@@ -18,7 +18,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 
   const { data } = await query.graph({
     entity: "family",
-    fields: ["*", "customers.*", "customers.groups.*"],
+    fields: ["*", "customers.*", "customers.groups.*", "customers.course_groups.*", "customers.course_groups.course.*", "customers.course_groups.course.academy.*"],
     filters: { id },
     ...req.queryConfig,
   });

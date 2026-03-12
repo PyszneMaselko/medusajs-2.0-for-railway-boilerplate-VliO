@@ -21,11 +21,23 @@ export const POST = async (
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const query = req.scope.resolve("query");
 
+  const { q } = req.validatedQuery as { q?: string }
+
+  const filters: any = {}
+
+  if (q) {
+    filters.name = {
+      $ilike: `%${q}%`,
+    }
+  }
+
+
   const { data: families, metadata: { count, take, skip } = {} } =
     await query.graph({
       entity: "family",
       fields: ["*", "customers.*"],
       ...req.queryConfig,
+      filters,
     });
 
   res.json({

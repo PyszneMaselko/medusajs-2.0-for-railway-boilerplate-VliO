@@ -13,8 +13,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HttpTypes } from "@medusajs/types";
 import { useCustomerOrders } from "../hooks/use-customer-orders.js";
-import { useQuery } from "@tanstack/react-query";
-import { sdk } from "../../../../lib/sdk.js";
+import { DraftOrderDetailsDrawer } from "./DraftOrderDetailsDrawer.js";
 
 type PaymentStatus = "not_paid" | "captured" | "authorized" | "refunded";
 
@@ -74,8 +73,10 @@ export const CustomerOrdersTable = ({ customers = [] }: Props) => {
   const columns = useMemo(
     () => [
       columnHelper.accessor("display_id", {
-        header: "Order",
-        cell: ({ getValue }) => `#${getValue()}`,
+        header: "Draft order",
+        cell: ({ row }) => (
+          <DraftOrderDetailsDrawer draftOrder={row.original} />
+        ),
       }),
       columnHelper.accessor("payment_status", {
         header: "Payment status",

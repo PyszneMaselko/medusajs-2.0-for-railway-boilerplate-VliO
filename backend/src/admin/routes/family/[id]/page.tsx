@@ -9,6 +9,7 @@ import { useParams } from "react-router-dom";
 import { CustomerDropdown } from "./components/CustomerDropdown.js";
 import { CustomerOrdersTable } from "./components/CustomerOrdersTable.js";
 import { CustomerDraftOrdersTable } from "./components/CustomerDraftOrdersTable.js";
+import { CourseAttendanceTable } from "./components/CourseAttendanceTable.js"
 import { EditFamilyMembersDrawer } from "./components/EditFamilyMembersDrawer.js"
 import {
   createDataTableColumnHelper,
@@ -156,17 +157,17 @@ const FamilyPage = () => {
           </DataTable>
         }
       </Container>
-      <Container className="flex flex-col gap-y-4">
-        {/* Header */}
+      {/* <Container className="flex flex-col gap-y-4">
         <div className="flex items-center justify-between">
           <Heading level="h1">Title</Heading>
         </div>
 
         <Divider />
         <Text>Passed ID: {id}</Text>
-      </Container>
+      </Container> */}
       {familyQuery.data?.family.customers && (
         <>
+        <CourseAttendanceTable family={familyQuery.data.family} />
         <CustomerDraftOrdersTable customers={familyQuery.data.family.customers} />
         <CustomerOrdersTable customers={familyQuery.data.family.customers} />
         </>
